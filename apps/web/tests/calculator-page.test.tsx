@@ -32,4 +32,22 @@ describe('CalculatorPage Component', () => {
     // 6 × 260 g
     expect(screen.getByText(/6 × 260 g/)).toBeInTheDocument();
   });
+
+  it('renders method buttons and displays two-phase breakdown when Biga is selected', () => {
+    render(
+      <ThemeProvider attribute="class">
+        <LocaleProvider>
+          <CalculatorPage />
+        </LocaleProvider>
+      </ThemeProvider>
+    );
+
+    // Switch to Biga
+    const bigaBtn = screen.getByText('Biga');
+    fireEvent.click(bigaBtn);
+
+    // Should show Phase 1 and Phase 2 breakdown
+    expect(screen.getByText(/Fáze 1: Biga/)).toBeInTheDocument();
+    expect(screen.getByText(/Fáze 2: Finální těsto/)).toBeInTheDocument();
+  });
 });

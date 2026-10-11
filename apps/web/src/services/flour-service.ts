@@ -69,9 +69,11 @@ export async function saveFlour(flour: Partial<FlourItem>): Promise<FlourItem> {
   const stored = typeof window !== 'undefined' ? localStorage.getItem('bakeitbaby_custom_flours') : null;
   const customList: FlourItem[] = stored ? JSON.parse(stored) : [];
 
-  const w = flour.wIndex || 250;
+  const isGlutenFree = Boolean(flour.isGlutenFree);
+  const w = flour.wIndex !== undefined ? flour.wIndex : 250;
   let category: FlourItem['strengthCategory'] = 'medium';
-  if (w < 220) category = 'weak';
+  if (isGlutenFree || w === null) category = 'gluten_free';
+  else if (w < 220) category = 'weak';
   else if (w <= 260) category = 'medium';
   else if (w <= 310) category = 'strong';
   else category = 'manitoba';
@@ -82,12 +84,15 @@ export async function saveFlour(flour: Partial<FlourItem>): Promise<FlourItem> {
     brand: flour.brand || '',
     wIndex: w,
     wRangeMax: flour.wRangeMax || null,
+    elasticityPL: flour.elasticityPL || null,
     proteinPercentage: flour.proteinPercentage || 12.0,
     flourType: flour.flourType || 'tipo_00',
     minHydration: flour.minHydration || 55,
     maxHydration: flour.maxHydration || 65,
     recommendedFermentationHours: flour.recommendedFermentationHours || '8–14 h',
     usageNotes: flour.usageNotes || '',
+    showInCalculator: flour.showInCalculator !== false,
+    isGlutenFree,
     isPreset: false,
     strengthCategory: category,
   };

@@ -2,18 +2,23 @@
 
 import * as React from 'react';
 import { useAppLocale } from '@/context/locale-context';
-import { RecipeItem, PRESET_RECIPES } from '@/types/recipe';
+import { RecipeItem, RecipeIngredient, PRESET_RECIPES } from '@/types/recipe';
 import { fetchRecipes, saveRecipe, deleteRecipe } from '@/services/recipe-service';
-import { Search, Plus, Edit2, Trash2, Calculator, ChevronDown, ChevronUp, BookOpen, Clock, Droplets, Flame, Sparkles } from 'lucide-react';
+import { fetchDoughs } from '@/services/dough-service';
+import { DoughItem } from '@/types/dough';
+import { Search, Plus, Edit2, Trash2, BookOpen, Clock, Flame, ChevronDown, ChevronUp, Utensils, ChefHat, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RecipesPage() {
   const { t } = useAppLocale();
   const [recipes, setRecipes] = React.useState<RecipeItem[]>(PRESET_RECIPES);
+  const [doughs, setDoughs] = React.useState<DoughItem[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [styleFilter, setStyleFilter] = React.useState('all');
-  const [expandedId, setExpandedId] = React.useState<number | null>(1); // first recipe expanded by default
+  const [expandedId, setExpandedId] = React.useState<number | null>(1); // first expanded
+
+  // Modal State
   const [modalOpen, setModalOpen] = React.useState(false);
   const [editingRecipe, setEditingRecipe] = React.useState<RecipeItem | null>(null);
 
@@ -21,49 +26,31 @@ export default function RecipesPage() {
   const [formName, setFormName] = React.useState('');
   const [formDescription, setFormDescription] = React.useState('');
   const [formStyle, setFormStyle] = React.useState('neapolitan');
-  const [formPreferment, setFormPreferment] = React.useState('direct');
-  const [formBalls, setFormBalls] = React.useState(4);
-  const [formWeight, setFormWeight] = React.useState(260);
-  const [formHydration, setFormHydration] = React.useState(65);
-  const [formSalt, setFormSalt] = React.useState(2.8);
-  const [formYeast, setFormYeast] = React.useState(0.15);
-  const [formYeastType, setFormYeastType] = React.useState('fresh');
-  const [formOil, setFormOil] = React.useState(0);
-  const [formSugar, setFormSugar] = React.useState(0);
-  const [formRt, setFormRt] = React.useState(8);
-  const [formCt, setFormCt] = React.useState(16);
-  const [formFlourName, setFormFlourName] = React.useState('');
+  const [formDoughId, setFormDoughId] = React.useState<number | ''>('');
+  const [formDoughName, setFormDoughName] = React.useState('');
+  const [formPrepTime, setFormPrepTime] = React.useState(10);
+  const [formBakeTemp, setFormBakeTemp] = React.useState(450);
+  const [formBakeSeconds, setFormBakeSeconds] = React.useState(75);
+  const [formIngredients, setFormIngredients] = React.useState<RecipeIngredient[]>([
+    { name: 'Sugo San Marzano', amount: '80 g', stage: 'základ' },
+    { name: 'Mozzarella Fior di Latte', amount: '90 g', stage: 'před pečením' },
+    { name: 'Čerstvá bazalka', amount: '4 lístky', stage: 'po upečení' },
+  ]);
   const [formInstructionsText, setFormInstructionsText] = React.useState('');
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
-    const data = await fetchRecipes(searchTerm, styleFilter);
-    setRecipes(data);
+    const [recipesData, doughsData] = await Promise.all([
+      fetchRecipes(searchTerm, styleFilter),
+      fetchDoughs(),
+    ]);
+    setRecipes(recipesData);
+    setDoughs(doughsData);
     setLoading(false);
   }, [searchTerm, styleFilter]);
 
   React.useEffect(() => {
     loadData();
-
-    // Check for query params when directed from Calculator "Uložit jako recept"
-    if (typeof window !== 'undefined') {
-      const p = new URLSearchParams(window.location.search);
-      if (p.get('savePreset') === 'true') {
-        setEditingRecipe(null);
-        setFormName(p.get('name') || 'Moje nová pizza');
-        setFormHydration(Number(p.get('hydration')) || 65);
-        setFormBalls(Number(p.get('pizzas')) || 4);
-        setFormWeight(Number(p.get('weight')) || 260);
-        setFormSalt(Number(p.get('salt')) || 2.8);
-        setFormOil(Number(p.get('oil')) || 0);
-        setFormSugar(Number(p.get('sugar')) || 0);
-        setFormRt(Number(p.get('rt')) || 8);
-        setFormCt(Number(p.get('ct')) || 16);
-        setFormFlourName('Vybraná mouka');
-        setFormInstructionsText('Rozpusťte sůl ve vodě.\nPřidejte mouku a droždí.\nHněťte do sametové struktury.\nNechte zrát podle plánu.');
-        setModalOpen(true);
-      }
-    }
   }, [loadData]);
 
   const openAddModal = () => {
@@ -71,19 +58,18 @@ export default function RecipesPage() {
     setFormName('');
     setFormDescription('');
     setFormStyle('neapolitan');
-    setFormPreferment('direct');
-    setFormBalls(4);
-    setFormWeight(260);
-    setFormHydration(65);
-    setFormSalt(2.8);
-    setFormYeast(0.15);
-    setFormYeastType('fresh');
-    setFormOil(0);
-    setFormSugar(0);
-    setFormRt(8);
-    setFormCt(16);
-    setFormFlourName('Caputo Pizzeria Tipo 00');
-    setFormInstructionsText('Rozpusťte sůl ve vodě.\nPřidejte mouku a droždí.\nHněťte do hladka.\nFermentujte v chladu.');
+    setFormDoughId('');
+    setFormDoughName('');
+    setFormPrepTime(10);
+    setFormBakeTemp(450);
+    setFormBakeSeconds(75);
+    setFormIngredients([
+      { name: 'Sugo San Marzano D.O.P.', amount: '80 g', stage: 'základ' },
+      { name: 'Fior di Latte', amount: '90 g', stage: 'před pečením' },
+      { name: 'Čerstvá bazalka', amount: '5 lístků', stage: 'po upečení' },
+      { name: 'Extra panenský olivový olej', amount: '1 lžíce', stage: 'po upečení' },
+    ]);
+    setFormInstructionsText('Roztáhněte těsto.\nNaneste sugo a mozzarellu.\nPečte v peci 75 sekund při 450 °C.\nDozdobte bazalkou a olejem.');
     setModalOpen(true);
   };
 
@@ -92,20 +78,28 @@ export default function RecipesPage() {
     setFormName(recipe.name);
     setFormDescription(recipe.description || '');
     setFormStyle(recipe.pizzaStyle);
-    setFormPreferment(recipe.prefermentType);
-    setFormBalls(recipe.doughBallsCount);
-    setFormWeight(recipe.ballWeightGrams);
-    setFormHydration(recipe.hydrationPercentage);
-    setFormSalt(recipe.saltPercentage);
-    setFormYeast(recipe.yeastPercentage);
-    setFormYeastType(recipe.yeastType);
-    setFormOil(recipe.oilPercentage);
-    setFormSugar(recipe.sugarPercentage);
-    setFormRt(recipe.fermentationRtHours);
-    setFormCt(recipe.fermentationCtHours);
-    setFormFlourName(recipe.flourName || '');
-    setFormInstructionsText(recipe.instructions.join('\n'));
+    setFormDoughId(recipe.doughId ?? '');
+    setFormDoughName(recipe.doughName || '');
+    setFormPrepTime(recipe.prepTimeMinutes);
+    setFormBakeTemp(recipe.bakeTemperature);
+    setFormBakeSeconds(recipe.bakeTimeSeconds);
+    setFormIngredients(recipe.ingredients.length > 0 ? recipe.ingredients : [{ name: '', amount: '', stage: 'základ' }]);
+    setFormInstructionsText((recipe.instructions || []).join('\n'));
     setModalOpen(true);
+  };
+
+  const addIngredientRow = () => {
+    setFormIngredients(prev => [...prev, { name: '', amount: '', stage: 'před pečením' }]);
+  };
+
+  const removeIngredientRow = (idx: number) => {
+    setFormIngredients(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const updateIngredientField = (idx: number, field: keyof RecipeIngredient, val: string) => {
+    setFormIngredients(prev =>
+      prev.map((item, i) => (i === idx ? { ...item, [field]: val } : item))
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,25 +107,21 @@ export default function RecipesPage() {
     const instructions = formInstructionsText
       .split('\n')
       .map(s => s.trim())
-      .filter(Boolean);
+      .filter(s => s.length > 0);
+
+    const validIngredients = formIngredients.filter(ing => ing.name.trim().length > 0);
 
     const payload: Partial<RecipeItem> = {
       id: editingRecipe ? editingRecipe.id : undefined,
       name: formName,
       description: formDescription,
       pizzaStyle: formStyle,
-      prefermentType: formPreferment,
-      doughBallsCount: Number(formBalls),
-      ballWeightGrams: Number(formWeight),
-      hydrationPercentage: Number(formHydration),
-      saltPercentage: Number(formSalt),
-      yeastPercentage: Number(formYeast),
-      yeastType: formYeastType,
-      oilPercentage: Number(formOil),
-      sugarPercentage: Number(formSugar),
-      fermentationRtHours: Number(formRt),
-      fermentationCtHours: Number(formCt),
-      flourName: formFlourName,
+      doughId: formDoughId !== '' ? Number(formDoughId) : null,
+      doughName: formDoughName || undefined,
+      prepTimeMinutes: Number(formPrepTime),
+      bakeTemperature: Number(formBakeTemp),
+      bakeTimeSeconds: Number(formBakeSeconds),
+      ingredients: validIngredients,
       instructions,
     };
 
@@ -147,26 +137,9 @@ export default function RecipesPage() {
     }
   };
 
-  const getStyleBadgeClass = (style: string) => {
-    switch (style) {
-      case 'neapolitan':
-        return 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 border-red-300 dark:border-red-800';
-      case 'canotto':
-        return 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800';
-      case 'roman_crispy':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-300 dark:border-blue-800';
-      case 'biga':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-300 dark:border-purple-800';
-      case 'sourdough':
-        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 border-gray-300';
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[var(--color-border)]">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
@@ -180,14 +153,14 @@ export default function RecipesPage() {
         <button
           type="button"
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-[var(--color-primary-contrast)] font-semibold text-sm shadow-sm transition-colors cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-[var(--color-primary-contrast)] font-semibold text-sm shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>{t('recipes.addRecipe')}</span>
         </button>
       </div>
 
-      {/* Search and Style Filter */}
+      {/* Filters and Search */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
@@ -196,18 +169,17 @@ export default function RecipesPage() {
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder={t('recipes.search')}
-            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)] placeholder:text-[var(--color-text-subtle)]"
+            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-1 focus:ring-[var(--color-primary)] placeholder:text-[var(--color-text-subtle)]"
           />
         </div>
 
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
           {[
             { id: 'all', label: t('recipes.style.all') },
-            { id: 'neapolitan', label: 'Neapolská' },
-            { id: 'canotto', label: 'Canotto' },
-            { id: 'roman_crispy', label: 'Římská plech' },
-            { id: 'biga', label: 'Biga' },
-            { id: 'sourdough', label: 'Kvásek' },
+            { id: 'neapolitan', label: t('recipes.style.neapolitan') },
+            { id: 'canotto', label: t('recipes.style.canotto') },
+            { id: 'roman_crispy', label: t('recipes.style.roman_crispy') },
+            { id: 'glutenfree', label: t('recipes.style.glutenfree') },
           ].map(tab => (
             <button
               key={tab.id}
@@ -215,7 +187,7 @@ export default function RecipesPage() {
               onClick={() => setStyleFilter(tab.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer border ${
                 styleFilter === tab.id
-                  ? 'bg-[var(--color-navy)] text-white border-transparent dark:bg-[var(--color-mustard)] dark:text-black font-bold'
+                  ? 'bg-[var(--color-primary)] text-white border-transparent'
                   : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]'
               }`}
             >
@@ -225,148 +197,170 @@ export default function RecipesPage() {
         </div>
       </div>
 
-      {/* Recipes Cards List */}
+      {/* Recipe Cards List */}
       {loading ? (
         <div className="py-12 text-center text-sm text-[var(--color-text-muted)]">
           {t('common.loading')}
         </div>
       ) : recipes.length === 0 ? (
-        <div className="py-12 text-center rounded-2xl border border-dashed border-[var(--color-border)] p-8">
+        <div className="py-12 text-center rounded-xl border border-[var(--color-border)] p-8">
           <BookOpen className="w-10 h-10 mx-auto text-[var(--color-text-muted)] mb-2" />
-          <p className="text-sm font-semibold text-[var(--color-text-main)]">Žádný recept nenalezen</p>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">Zkuste upravit vyhledávání nebo filtr.</p>
+          <p className="text-sm font-semibold text-[var(--color-text-main)]">Nenalezeny žádné recepty</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">Zkuste upravit vyhledávání nebo přidat nový recept.</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {recipes.map(recipe => {
             const isExpanded = expandedId === recipe.id;
             return (
               <div
                 key={recipe.id}
-                className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-hover)] shadow-xs transition-all duration-150 overflow-hidden"
+                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden shadow-xs transition-colors"
               >
-                {/* Main Card Header */}
-                <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex-1 space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider border ${getStyleBadgeClass(
-                          recipe.pizzaStyle
-                        )}`}
-                      >
-                        {recipe.pizzaStyle}
-                      </span>
-                      {recipe.prefermentType !== 'direct' && (
-                        <span className="text-xs px-2 py-0.5 rounded-md font-semibold bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] border border-[var(--color-border)]">
-                          {recipe.prefermentType.toUpperCase()}
-                        </span>
-                      )}
-                      {recipe.flourName && (
-                        <span className="text-xs font-semibold text-[var(--color-primary)]">
-                          🌾 {recipe.flourName}
-                        </span>
-                      )}
+                {/* Header row */}
+                <div
+                  onClick={() => setExpandedId(isExpanded ? null : recipe.id)}
+                  className="p-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-[var(--color-surface-subtle)] transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-primary)] border border-[var(--color-border)]">
+                      <BookOpen className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <h3 className="font-bold text-sm text-[var(--color-text-main)] font-[family-name:var(--font-outfit)]">
+                        {recipe.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mt-0.5">
+                        <span className="capitalize">{recipe.pizzaStyle}</span>
+                        {recipe.doughName && (
+                          <>
+                            <span>•</span>
+                            <span className="text-[var(--color-text-main)] font-medium">Těsto: {recipe.doughName}</span>
+                          </>
+                        )}
+                        <span>•</span>
+                        <span>{recipe.ingredients.length} surovin</span>
+                      </div>
                     </div>
+                  </div>
 
-                    <h3 className="text-lg font-bold font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
-                      {recipe.name}
-                    </h3>
+                  <div className="flex items-center gap-3">
+                    <span className="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-main)] flex items-center gap-1">
+                      <Flame className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                      <span>{recipe.bakeTemperature} °C ({recipe.bakeTimeSeconds} s)</span>
+                    </span>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-[var(--color-text-muted)]" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-[var(--color-text-muted)]" />
+                    )}
+                  </div>
+                </div>
 
+                {/* Expanded Details */}
+                {isExpanded && (
+                  <div className="p-4 pt-1 border-t border-[var(--color-border)] bg-[var(--color-surface-subtle)] space-y-4 text-xs">
                     {recipe.description && (
-                      <p className="text-xs text-[var(--color-text-muted)] leading-relaxed max-w-3xl">
+                      <p className="text-[var(--color-text-muted)] leading-relaxed">
                         {recipe.description}
                       </p>
                     )}
-                  </div>
 
-                  {/* Metrics Badges */}
-                  <div className="flex items-center gap-3 text-center self-start md:self-auto shrink-0">
-                    <div className="px-3 py-2 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] block uppercase font-semibold">
-                        Hydratace
-                      </span>
-                      <span className="text-sm font-extrabold font-mono text-[var(--color-primary)]">
-                        {recipe.hydrationPercentage} %
-                      </span>
+                    {/* Quick Specs Bar */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                      <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">Teplota pečení</span>
+                        <strong className="font-mono text-sm text-[var(--color-text-main)]">{recipe.bakeTemperature} °C</strong>
+                      </div>
+                      <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">Doba pečení</span>
+                        <strong className="font-mono text-sm text-[var(--color-text-main)]">{recipe.bakeTimeSeconds} s</strong>
+                      </div>
+                      <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">Příprava</span>
+                        <strong className="font-mono text-sm text-[var(--color-text-main)]">{recipe.prepTimeMinutes} min</strong>
+                      </div>
+                      <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">Použité těsto</span>
+                        <strong className="text-xs text-[var(--color-text-main)] truncate block">
+                          {recipe.doughName || 'Vlastní / Bez těsta'}
+                        </strong>
+                      </div>
                     </div>
 
-                    <div className="px-3 py-2 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] block uppercase font-semibold">
-                        Bochánky
+                    {/* Ingredients List */}
+                    <div className="p-3.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] space-y-2">
+                      <span className="font-bold text-[var(--color-text-main)] block flex items-center gap-1.5">
+                        <Utensils className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                        <span>Suroviny a toppingy ({recipe.ingredients.length}):</span>
                       </span>
-                      <span className="text-sm font-extrabold font-mono text-[var(--color-text-main)]">
-                        {recipe.doughBallsCount} × {recipe.ballWeightGrams} g
-                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                        {recipe.ingredients.map((ing, i) => (
+                          <div
+                            key={i}
+                            className="flex items-center justify-between p-2 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)]"
+                          >
+                            <span className="font-medium text-[var(--color-text-main)]">{ing.name}</span>
+                            <div className="text-right">
+                              <span className="font-mono font-bold text-[var(--color-text-main)] ml-2">{ing.amount}</span>
+                              {ing.stage && (
+                                <span className="text-[10px] text-[var(--color-text-muted)] block opacity-75">
+                                  {ing.stage}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="px-3 py-2 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] block uppercase font-semibold">
-                        Fermentace
-                      </span>
-                      <span className="text-xs font-bold font-mono text-[var(--color-text-main)]">
-                        {recipe.fermentationRtHours + recipe.fermentationCtHours} h
-                      </span>
+                    {/* Step-by-step instructions */}
+                    {recipe.instructions && recipe.instructions.length > 0 && (
+                      <div className="p-3.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] space-y-1.5">
+                        <span className="font-bold text-[var(--color-text-main)] block">
+                          Postup pečení a servírování:
+                        </span>
+                        <ol className="list-decimal list-inside space-y-1 text-[var(--color-text-muted)] leading-relaxed">
+                          {recipe.instructions.map((step, idx) => (
+                            <li key={idx}>{step}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(recipe)}
+                          className="px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] font-semibold cursor-pointer text-[var(--color-text-main)]"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 inline mr-1" />
+                          Upravit recept
+                        </button>
+                        {!recipe.isPreset && (
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(recipe.id)}
+                            className="px-2.5 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-semibold cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+                            Smazat
+                          </button>
+                        )}
+                      </div>
+
+                      {recipe.doughName && (
+                        <Link
+                          href="/doughs"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] font-semibold cursor-pointer text-[var(--color-text-main)]"
+                        >
+                          <ChefHat className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                          <span>Zobrazit těsto →</span>
+                        </Link>
+                      )}
                     </div>
-                  </div>
-                </div>
-
-                {/* Card Action Bar */}
-                <div className="px-5 py-3 border-t border-[var(--color-border)] bg-[var(--color-surface-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-3">
-                    <Link
-                      href={`/?hydration=${recipe.hydrationPercentage}&pizzas=${recipe.doughBallsCount}&weight=${recipe.ballWeightGrams}&salt=${recipe.saltPercentage}&oil=${recipe.oilPercentage}&sugar=${recipe.sugarPercentage}&rt=${recipe.fermentationRtHours}&ct=${recipe.fermentationCtHours}`}
-                      className="inline-flex items-center gap-1.5 font-bold text-[var(--color-primary)] hover:underline"
-                    >
-                      <Calculator className="w-4 h-4" />
-                      <span>{t('recipes.openInCalculator')}</span>
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={() => setExpandedId(isExpanded ? null : recipe.id)}
-                      className="inline-flex items-center gap-1 font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] cursor-pointer"
-                    >
-                      <span>Postup přípravy ({recipe.instructions?.length || 0})</span>
-                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(recipe)}
-                      className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
-                      title={t('common.edit')}
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(recipe.id)}
-                      className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
-                      title={t('common.delete')}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Expandable Step-by-Step Instructions */}
-                {isExpanded && recipe.instructions && recipe.instructions.length > 0 && (
-                  <div className="p-5 border-t border-[var(--color-border)] bg-[var(--color-surface)] space-y-2.5">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] mb-2">
-                      Kroky a časový rozpis přípravy:
-                    </h4>
-                    <ol className="space-y-2 list-none">
-                      {recipe.instructions.map((step, idx) => (
-                        <li key={idx} className="flex items-start gap-3 text-xs leading-relaxed text-[var(--color-text-main)]">
-                          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--color-surface-subtle)] border border-[var(--color-border)] font-mono font-bold text-[10px] text-[var(--color-primary)] shrink-0">
-                            {idx + 1}
-                          </span>
-                          <span>{step}</span>
-                        </li>
-                      ))}
-                    </ol>
                   </div>
                 )}
               </div>
@@ -377,225 +371,178 @@ export default function RecipesPage() {
 
       {/* Add / Edit Recipe Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-xl rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold font-[family-name:var(--font-outfit)] text-[var(--color-text-main)] mb-1">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-xl rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-xl space-y-4 my-8">
+            <h3 className="text-base font-bold font-[family-name:var(--font-outfit)] text-[var(--color-text-main)] pb-2 border-b border-[var(--color-border)]">
               {editingRecipe ? t('recipes.editRecipe') : t('recipes.addRecipe')}
-            </h2>
-            <p className="text-xs text-[var(--color-text-muted)] mb-5">
-              Uložte si svou recepturu s pekařskými procenty a postupem přípravy.
-            </p>
+            </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                  {t('recipes.modal.name')} *
+                <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                  Název receptu *
                 </label>
                 <input
                   type="text"
                   required
                   value={formName}
                   onChange={e => setFormName(e.target.value)}
-                  placeholder="např. Moje oblíbená Neapolská 68 %"
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                  placeholder="Např. Pizza Margherita Verace"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    {t('recipes.modal.style')}
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    Styl pizzy
                   </label>
                   <select
                     value={formStyle}
                     onChange={e => setFormStyle(e.target.value)}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] cursor-pointer"
                   >
                     <option value="neapolitan">Klasická Neapolská</option>
                     <option value="canotto">Moderní Canotto</option>
-                    <option value="roman_crispy">Římská křupavá</option>
-                    <option value="biga">Biga</option>
+                    <option value="roman_crispy">Římská pizza</option>
+                    <option value="glutenfree">Bezlepková pizza</option>
                     <option value="focaccia">Focaccia</option>
-                    <option value="sourdough">Kvásek</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    {t('recipes.modal.prefermentType')}
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    Navázané těsto (volitelné)
                   </label>
                   <select
-                    value={formPreferment}
-                    onChange={e => setFormPreferment(e.target.value)}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    value={formDoughId}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setFormDoughId(val === '' ? '' : Number(val));
+                      const found = doughs.find(d => d.id === Number(val));
+                      setFormDoughName(found ? found.name : '');
+                    }}
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] cursor-pointer"
                   >
-                    <option value="direct">Přímé těsto (Direct)</option>
-                    <option value="biga">Biga preferment</option>
-                    <option value="poolish">Poolish preferment</option>
-                    <option value="sourdough">Kvásek (Lievito Madre)</option>
+                    <option value="">Bez vazby na těsto (Vlastní)</option>
+                    {doughs.map(d => (
+                      <option key={d.id} value={d.id}>
+                        {d.name} ({d.hydrationPercentage} %)
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Hydratace (%) *
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    Teplota pečení (°C)
                   </label>
                   <input
                     type="number"
-                    step="0.5"
-                    required
-                    min={40}
-                    max={100}
-                    value={formHydration}
-                    onChange={e => setFormHydration(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    value={formBakeTemp}
+                    onChange={e => setFormBakeTemp(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] font-mono"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Bochánky (ks)
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    Doba pečení (sekundy)
                   </label>
                   <input
                     type="number"
-                    min={1}
-                    max={50}
-                    value={formBalls}
-                    onChange={e => setFormBalls(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    value={formBakeSeconds}
+                    onChange={e => setFormBakeSeconds(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] font-mono"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Hmotnost (g)
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    Čas přípravy (min)
                   </label>
                   <input
                     type="number"
-                    min={100}
-                    max={1000}
-                    value={formWeight}
-                    onChange={e => setFormWeight(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Sůl (%)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min={0}
-                    max={6}
-                    value={formSalt}
-                    onChange={e => setFormSalt(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Droždí (%)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min={0.01}
-                    max={20}
-                    value={formYeast}
-                    onChange={e => setFormYeast(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Olej (%)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min={0}
-                    max={10}
-                    value={formOil}
-                    onChange={e => setFormOil(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Pokojová teplota RT (h)
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={48}
-                    value={formRt}
-                    onChange={e => setFormRt(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Chladnička CT (h)
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={96}
-                    value={formCt}
-                    onChange={e => setFormCt(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    value={formPrepTime}
+                    onChange={e => setFormPrepTime(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                  Mouka (název / typ)
+                <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                  Popis receptu
                 </label>
                 <input
                   type="text"
-                  value={formFlourName}
-                  onChange={e => setFormFlourName(e.target.value)}
-                  placeholder="např. Caputo Cuoco Tipo 00 (W 300)"
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                  {t('recipes.modal.description')}
-                </label>
-                <textarea
-                  rows={2}
                   value={formDescription}
                   onChange={e => setFormDescription(e.target.value)}
-                  placeholder="Krátký popis receptu..."
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                  placeholder="Královna neapolské pizzy..."
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
 
+              {/* Dynamic Ingredients Editor */}
+              <div className="space-y-2 pt-1 border-t border-[var(--color-border)]">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[var(--color-text-main)]">
+                    Ingredience a toppingy
+                  </span>
+                  <button
+                    type="button"
+                    onClick={addIngredientRow}
+                    className="text-xs text-[var(--color-primary)] hover:underline font-semibold cursor-pointer"
+                  >
+                    + Přidat položku
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  {formIngredients.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Název (např. Sugo San Marzano)"
+                        value={item.name}
+                        onChange={e => updateIngredientField(idx, 'name', e.target.value)}
+                        className="flex-2 px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Množství (80 g)"
+                        value={item.amount}
+                        onChange={e => updateIngredientField(idx, 'amount', e.target.value)}
+                        className="flex-1 px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Fáze (základ/po pečení)"
+                        value={item.stage}
+                        onChange={e => updateIngredientField(idx, 'stage', e.target.value)}
+                        className="flex-1 px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeIngredientRow(idx)}
+                        className="p-1.5 text-zinc-400 hover:text-rose-500 cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                  {t('recipes.modal.instructions')}
+                <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                  Postup pečení (jeden krok na řádek)
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={formInstructionsText}
                   onChange={e => setFormInstructionsText(e.target.value)}
-                  placeholder="Každý krok na samostatný nový řádek..."
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
 
@@ -603,15 +550,15 @@ export default function RecipesPage() {
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+                  className="px-3.5 py-2 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
                 >
-                  {t('recipes.modal.cancel')}
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] shadow-xs cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold cursor-pointer"
                 >
-                  {t('recipes.modal.save')}
+                  {t('common.save')}
                 </button>
               </div>
             </form>

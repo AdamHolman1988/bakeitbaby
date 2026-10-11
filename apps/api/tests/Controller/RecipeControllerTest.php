@@ -19,22 +19,22 @@ final class RecipeControllerTest extends WebTestCase
         $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertArrayHasKey('data', $data);
         self::assertArrayHasKey('total', $data);
-        self::assertGreaterThanOrEqual(5, $data['total']);
+        self::assertGreaterThanOrEqual(6, $data['total']);
     }
 
     public function testFilterRecipesByStyle(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/recipes?style=canotto');
+        $client->request('GET', '/api/recipes?style=neapolitan');
 
         self::assertResponseIsSuccessful();
         $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         self::assertNotEmpty($data['data']);
-        self::assertSame('canotto', $data['data'][0]['pizzaStyle']);
+        self::assertSame('neapolitan', $data['data'][0]['pizzaStyle']);
     }
 
-    public function testCreateUpdateDeleteCustomRecipe(): void
+    public function testCreateUpdateDeleteCustomPizzaRecipe(): void
     {
         $client = static::createClient();
 
@@ -46,21 +46,23 @@ final class RecipeControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-                'name' => 'Custom Detroit Style Pizza',
-                'pizzaStyle' => 'focaccia',
-                'prefermentType' => 'direct',
-                'doughBallsCount' => 2,
-                'ballWeightGrams' => 450,
-                'hydrationPercentage' => 70.0,
-                'saltPercentage' => 2.5,
-                'yeastPercentage' => 0.30,
-                'yeastType' => 'instant_dry',
-                'oilPercentage' => 2.0,
-                'description' => 'Crispy buttery crust baked in blue steel pan',
+                'name' => 'Custom Pizza Capricciosa',
+                'pizzaStyle' => 'neapolitan',
+                'description' => 'Klasická Capricciosa se šunkou, žampiony a artyčoky',
+                'prepTimeMinutes' => 15,
+                'bakeTemperature' => 450,
+                'bakeTimeSeconds' => 80,
+                'ingredients' => [
+                    ['name' => 'Sugo San Marzano', 'amount' => '80 g', 'stage' => 'základ'],
+                    ['name' => 'Fior di latte', 'amount' => '80 g', 'stage' => 'před pečením'],
+                    ['name' => 'Prosciutto Cotto', 'amount' => '40 g', 'stage' => 'před pečením'],
+                    ['name' => 'Žampiony na tenké plátky', 'amount' => '30 g', 'stage' => 'před pečením'],
+                    ['name' => 'Kousky artyčoků v oleji', 'amount' => '30 g', 'stage' => 'před pečením'],
+                ],
                 'instructions' => [
-                    'Mix flour and water',
-                    'Proof in Detroit pan for 4 hours',
-                    'Bake with Wisconsin brick cheese',
+                    'Rozetřete sugo',
+                    'Posypte mozzarellou a ingrediencemi',
+                    'Upečte v peci 80 sekund',
                 ],
             ], JSON_THROW_ON_ERROR)
         );
@@ -69,7 +71,8 @@ final class RecipeControllerTest extends WebTestCase
         $res = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $newId = $res['data']['id'];
         self::assertIsInt($newId);
-        self::assertSame('Custom Detroit Style Pizza', $res['data']['name']);
+        self::assertSame('Custom Pizza Capricciosa', $res['data']['name']);
+        self::assertCount(5, $res['data']['ingredients']);
 
         // 2. Update
         $client->request(
@@ -79,15 +82,15 @@ final class RecipeControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-                'name' => 'Custom Detroit Style Pizza 2.0',
-                'hydrationPercentage' => 72.0,
+                'name' => 'Custom Pizza Capricciosa Tradizionale',
+                'bakeTimeSeconds' => 75,
             ], JSON_THROW_ON_ERROR)
         );
 
         self::assertResponseIsSuccessful();
         $up = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        self::assertSame('Custom Detroit Style Pizza 2.0', $up['data']['name']);
-        self::assertEquals(72.0, $up['data']['hydrationPercentage']);
+        self::assertSame('Custom Pizza Capricciosa Tradizionale', $up['data']['name']);
+        self::assertSame(75, $up['data']['bakeTimeSeconds']);
 
         // 3. Delete
         $client->request('DELETE', '/api/recipes/' . $newId);

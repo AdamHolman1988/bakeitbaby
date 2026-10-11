@@ -58,7 +58,7 @@ final class FlourController extends AbstractController
         $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $name = isset($payload['name']) ? (string) $payload['name'] : '';
-        $wIndex = isset($payload['wIndex']) ? (int) $payload['wIndex'] : 0;
+        $wIndex = isset($payload['wIndex']) && $payload['wIndex'] !== '' ? (int) $payload['wIndex'] : null;
         $proteinPercentage = isset($payload['proteinPercentage']) ? (float) $payload['proteinPercentage'] : 0.0;
         $flourType = isset($payload['flourType']) ? (string) $payload['flourType'] : 'tipo_00';
         $minHydration = isset($payload['minHydration']) ? (int) $payload['minHydration'] : 55;
@@ -66,6 +66,9 @@ final class FlourController extends AbstractController
         $recommendedFermentationHours = isset($payload['recommendedFermentationHours']) ? (string) $payload['recommendedFermentationHours'] : '8–14 h';
         $brand = isset($payload['brand']) ? (string) $payload['brand'] : null;
         $usageNotes = isset($payload['usageNotes']) ? (string) $payload['usageNotes'] : null;
+        $elasticityPL = isset($payload['elasticityPL']) ? (string) $payload['elasticityPL'] : null;
+        $showInCalculator = isset($payload['showInCalculator']) ? (bool) $payload['showInCalculator'] : true;
+        $isGlutenFree = isset($payload['isGlutenFree']) ? (bool) $payload['isGlutenFree'] : false;
 
         $flour = new Flour(
             name: $name,
@@ -77,6 +80,9 @@ final class FlourController extends AbstractController
             recommendedFermentationHours: $recommendedFermentationHours,
             brand: $brand,
             usageNotes: $usageNotes,
+            elasticityPL: $elasticityPL,
+            showInCalculator: $showInCalculator,
+            isGlutenFree: $isGlutenFree,
             isPreset: false
         );
 
@@ -116,11 +122,14 @@ final class FlourController extends AbstractController
         if (isset($payload['brand'])) {
             $flour->setBrand((string) $payload['brand']);
         }
-        if (isset($payload['wIndex'])) {
-            $flour->setWIndex((int) $payload['wIndex']);
+        if (array_key_exists('wIndex', $payload)) {
+            $flour->setWIndex($payload['wIndex'] !== null && $payload['wIndex'] !== '' ? (int) $payload['wIndex'] : null);
         }
         if (array_key_exists('wRangeMax', $payload)) {
-            $flour->setWRangeMax($payload['wRangeMax'] !== null ? (int) $payload['wRangeMax'] : null);
+            $flour->setWRangeMax($payload['wRangeMax'] !== null && $payload['wRangeMax'] !== '' ? (int) $payload['wRangeMax'] : null);
+        }
+        if (array_key_exists('elasticityPL', $payload)) {
+            $flour->setElasticityPL($payload['elasticityPL'] !== null ? (string) $payload['elasticityPL'] : null);
         }
         if (isset($payload['proteinPercentage'])) {
             $flour->setProteinPercentage((float) $payload['proteinPercentage']);
@@ -139,6 +148,12 @@ final class FlourController extends AbstractController
         }
         if (isset($payload['usageNotes'])) {
             $flour->setUsageNotes((string) $payload['usageNotes']);
+        }
+        if (isset($payload['showInCalculator'])) {
+            $flour->setShowInCalculator((bool) $payload['showInCalculator']);
+        }
+        if (isset($payload['isGlutenFree'])) {
+            $flour->setIsGlutenFree((bool) $payload['isGlutenFree']);
         }
 
         $errors = $this->validator->validate($flour);

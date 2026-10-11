@@ -24,7 +24,8 @@ class FlourRepository extends ServiceEntityRepository
     public function searchAndFilter(?string $search = null, ?string $strength = null): array
     {
         $qb = $this->createQueryBuilder('f')
-            ->orderBy('f.wIndex', 'ASC');
+            ->addSelect('CASE WHEN f.wIndex IS NULL THEN 999 ELSE f.wIndex END AS HIDDEN sortW')
+            ->orderBy('sortW', 'ASC');
 
         if ($search !== null && trim($search) !== '') {
             $qb->andWhere('LOWER(f.name) LIKE :search OR LOWER(f.brand) LIKE :search OR LOWER(f.usageNotes) LIKE :search')
@@ -33,10 +34,11 @@ class FlourRepository extends ServiceEntityRepository
 
         if ($strength !== null && $strength !== '' && $strength !== 'all') {
             match ($strength) {
-                'weak' => $qb->andWhere('f.wIndex < 220'),
-                'medium' => $qb->andWhere('f.wIndex >= 220 AND f.wIndex <= 260'),
-                'strong' => $qb->andWhere('f.wIndex >= 270 AND f.wIndex <= 310'),
-                'manitoba' => $qb->andWhere('f.wIndex >= 320'),
+                'weak' => $qb->andWhere('f.wIndex < 220 AND f.isGlutenFree = false'),
+                'medium' => $qb->andWhere('f.wIndex >= 220 AND f.wIndex <= 260 AND f.isGlutenFree = false'),
+                'strong' => $qb->andWhere('f.wIndex >= 270 AND f.wIndex <= 310 AND f.isGlutenFree = false'),
+                'manitoba' => $qb->andWhere('f.wIndex >= 320 AND f.isGlutenFree = false'),
+                'gluten_free' => $qb->andWhere('f.isGlutenFree = true OR f.wIndex IS NULL'),
                 default => null,
             };
         }

@@ -2,31 +2,37 @@
 
 import * as React from 'react';
 import { useAppLocale } from '@/context/locale-context';
-import { FlourItem } from '@/types/flour';
+import { FlourItem, PRESET_FLOURS } from '@/types/flour';
 import { fetchFlours, saveFlour, deleteFlour } from '@/services/flour-service';
-import { Search, Plus, Edit2, Trash2, Wheat, ArrowRight, ShieldCheck, Info } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Wheat, Eye, X, Check, ArrowRight, Info } from 'lucide-react';
 import Link from 'next/link';
 
 export default function FloursPage() {
   const { t } = useAppLocale();
-  const [flours, setFlours] = React.useState<FlourItem[]>([]);
+  const [flours, setFlours] = React.useState<FlourItem[]>(PRESET_FLOURS);
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [strengthFilter, setStrengthFilter] = React.useState<string>('all');
+
+  // Modals
   const [modalOpen, setModalOpen] = React.useState(false);
+  const [detailModalFlour, setDetailModalFlour] = React.useState<FlourItem | null>(null);
   const [editingFlour, setEditingFlour] = React.useState<FlourItem | null>(null);
 
   // Form state
   const [formName, setFormName] = React.useState('');
   const [formBrand, setFormBrand] = React.useState('');
-  const [formWIndex, setFormWIndex] = React.useState(260);
+  const [formWIndex, setFormWIndex] = React.useState<number | ''>(260);
   const [formWRangeMax, setFormWRangeMax] = React.useState<number | ''>('');
+  const [formElasticity, setFormElasticity] = React.useState('0.50–0.60');
   const [formProtein, setFormProtein] = React.useState(12.5);
   const [formType, setFormType] = React.useState('tipo_00');
   const [formMinHydration, setFormMinHydration] = React.useState(55);
   const [formMaxHydration, setFormMaxHydration] = React.useState(65);
   const [formFermentation, setFormFermentation] = React.useState('8–14 h (RT)');
   const [formNotes, setFormNotes] = React.useState('');
+  const [formShowInCalculator, setFormShowInCalculator] = React.useState(true);
+  const [formIsGlutenFree, setFormIsGlutenFree] = React.useState(false);
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
@@ -45,12 +51,15 @@ export default function FloursPage() {
     setFormBrand('');
     setFormWIndex(260);
     setFormWRangeMax('');
+    setFormElasticity('0.50–0.60');
     setFormProtein(12.5);
     setFormType('tipo_00');
     setFormMinHydration(55);
     setFormMaxHydration(65);
     setFormFermentation('8–14 h (RT)');
     setFormNotes('');
+    setFormShowInCalculator(true);
+    setFormIsGlutenFree(false);
     setModalOpen(true);
   };
 
@@ -58,15 +67,32 @@ export default function FloursPage() {
     setEditingFlour(flour);
     setFormName(flour.name);
     setFormBrand(flour.brand || '');
-    setFormWIndex(flour.wIndex);
-    setFormWRangeMax(flour.wRangeMax || '');
+    setFormWIndex(flour.wIndex ?? '');
+    setFormWRangeMax(flour.wRangeMax ?? '');
+    setFormElasticity(flour.elasticityPL || '');
     setFormProtein(flour.proteinPercentage);
     setFormType(flour.flourType);
     setFormMinHydration(flour.minHydration);
     setFormMaxHydration(flour.maxHydration);
     setFormFermentation(flour.recommendedFermentationHours);
     setFormNotes(flour.usageNotes || '');
+    setFormShowInCalculator(flour.showInCalculator !== false);
+    setFormIsGlutenFree(flour.isGlutenFree || false);
     setModalOpen(true);
+  };
+
+  const toggleCalculatorVisibility = async (flour: FlourItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updatedStatus = !flour.showInCalculator;
+    // optimistic update
+    setFlours(prev =>
+      prev.map(f => (f.id === flour.id ? { ...f, showInCalculator: updatedStatus } : f))
+    );
+    try {
+      await saveFlour({ id: flour.id, showInCalculator: updatedStatus });
+    } catch {
+      loadData();
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,14 +101,17 @@ export default function FloursPage() {
       id: editingFlour ? editingFlour.id : undefined,
       name: formName,
       brand: formBrand,
-      wIndex: Number(formWIndex),
+      wIndex: formWIndex !== '' ? Number(formWIndex) : null,
       wRangeMax: formWRangeMax !== '' ? Number(formWRangeMax) : null,
+      elasticityPL: formElasticity,
       proteinPercentage: Number(formProtein),
       flourType: formType,
       minHydration: Number(formMinHydration),
       maxHydration: Number(formMaxHydration),
       recommendedFermentationHours: formFermentation,
       usageNotes: formNotes,
+      showInCalculator: formShowInCalculator,
+      isGlutenFree: formIsGlutenFree,
     };
 
     await saveFlour(payload);
@@ -90,31 +119,40 @@ export default function FloursPage() {
     loadData();
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
     if (confirm(t('common.confirmDelete'))) {
       await deleteFlour(id);
       loadData();
     }
   };
 
-  const getStrengthBadgeClass = (category: string) => {
-    switch (category) {
-      case 'weak':
-        return 'bg-[var(--color-badge-weak-bg)] text-[var(--color-badge-weak-text)] border-slate-300 dark:border-slate-700';
-      case 'medium':
-        return 'bg-[var(--color-badge-medium-bg)] text-[var(--color-badge-medium-text)] border-amber-300 dark:border-amber-700';
-      case 'strong':
-        return 'bg-[var(--color-badge-strong-bg)] text-[var(--color-badge-strong-text)] border-orange-300 dark:border-orange-800';
-      case 'manitoba':
-        return 'bg-[var(--color-badge-manitoba-bg)] text-[var(--color-badge-manitoba-text)] border-emerald-300 dark:border-emerald-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const getStrengthBadge = (flour: FlourItem) => {
+    if (flour.isGlutenFree || flour.wIndex === null) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-[var(--color-badge-glutenfree-bg)] text-[var(--color-badge-glutenfree-text)]">
+          Bezlepková
+        </span>
+      );
     }
+    const cat = flour.strengthCategory;
+    const styles: Record<string, string> = {
+      weak: 'bg-[var(--color-badge-weak-bg)] text-[var(--color-badge-weak-text)]',
+      medium: 'bg-[var(--color-badge-medium-bg)] text-[var(--color-badge-medium-text)]',
+      strong: 'bg-[var(--color-badge-strong-bg)] text-[var(--color-badge-strong-text)]',
+      manitoba: 'bg-[var(--color-badge-manitoba-bg)] text-[var(--color-badge-manitoba-text)]',
+    };
+    const rangeText = flour.wRangeMax ? `${flour.wIndex}–${flour.wRangeMax}` : `${flour.wIndex}`;
+    return (
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold ${styles[cat] || styles.medium}`}>
+        W {rangeText}
+      </span>
+    );
   };
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[var(--color-border)]">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
@@ -128,71 +166,44 @@ export default function FloursPage() {
         <button
           type="button"
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-[var(--color-primary-contrast)] font-semibold text-sm shadow-sm transition-colors cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-[var(--color-primary-contrast)] font-semibold text-sm shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>{t('flours.addFlour')}</span>
         </button>
       </div>
 
-      {/* Dough Strength Reference Table (Fresh Loaf / SFBI Standard) */}
-      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:p-5 shadow-xs">
-        <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider text-[var(--color-primary)]">
-          <Info className="w-4 h-4" />
-          <span>Referenční tabulka síly mouk (W Index & Fermentace)</span>
+      {/* Dough Strength Summary Reference Bar */}
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3.5 shadow-xs">
+        <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-[var(--color-text-muted)]">
+          <Info className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+          <span>Referenční indexy síly mouky (W Index)</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="p-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-            <div className="flex items-center justify-between">
-              <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">W 160–200</span>
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[var(--color-badge-weak-bg)] text-[var(--color-badge-weak-text)]">Slabá</span>
-            </div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1.5 space-y-0.5">
-              <div>💧 Hydratace: <strong className="text-[var(--color-text-main)]">50–55 %</strong></div>
-              <div>⏱ Čas: <strong className="text-[var(--color-text-main)]">2–4 h (RT)</strong></div>
-              <div className="text-[11px] opacity-80 pt-1">Sušenky, grissini, rychlá těsta</div>
-            </div>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+          <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
+            <span className="font-mono font-bold text-[var(--color-text-main)] block">W 160–200</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">Slabá • 50–55 % hydr. (2–4 h)</span>
           </div>
-
-          <div className="p-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-            <div className="flex items-center justify-between">
-              <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">W 220–260</span>
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[var(--color-badge-medium-bg)] text-[var(--color-badge-medium-text)]">Střední</span>
-            </div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1.5 space-y-0.5">
-              <div>💧 Hydratace: <strong className="text-[var(--color-text-main)]">55–60 %</strong></div>
-              <div>⏱ Čas: <strong className="text-[var(--color-text-main)]">8–14 h (RT)</strong></div>
-              <div className="text-[11px] opacity-80 pt-1">Rychlejší pizza na stejný den, přímé těsto</div>
-            </div>
+          <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
+            <span className="font-mono font-bold text-[var(--color-text-main)] block">W 220–260</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">Střední • 55–62 % (8–14 h)</span>
           </div>
-
-          <div className="p-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-            <div className="flex items-center justify-between">
-              <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">W 270–310</span>
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[var(--color-badge-strong-bg)] text-[var(--color-badge-strong-text)]">Silná</span>
-            </div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1.5 space-y-0.5">
-              <div>💧 Hydratace: <strong className="text-[var(--color-text-main)]">60–70 %</strong></div>
-              <div>⏱ Čas: <strong className="text-[var(--color-text-main)]">24–48 h (chlad)</strong></div>
-              <div className="text-[11px] opacity-80 pt-1">Klasická neapolská pizza, focaccia</div>
-            </div>
+          <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
+            <span className="font-mono font-bold text-[var(--color-text-main)] block">W 270–310</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">Silná • 60–70 % (24–48 h)</span>
           </div>
-
-          <div className="p-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-            <div className="flex items-center justify-between">
-              <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">W 320–380+</span>
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[var(--color-badge-manitoba-bg)] text-[var(--color-badge-manitoba-text)]">Manitoba</span>
-            </div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1.5 space-y-0.5">
-              <div>💧 Hydratace: <strong className="text-[var(--color-text-main)]">70–85+ %</strong></div>
-              <div>⏱ Čas: <strong className="text-[var(--color-text-main)]">48–72 h (chlad)</strong></div>
-              <div className="text-[11px] opacity-80 pt-1">Biga, poolish, hydratace 75 %+</div>
-            </div>
+          <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
+            <span className="font-mono font-bold text-[var(--color-text-main)] block">W 320–380+</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">Manitoba • 70–85 % (48–72 h)</span>
+          </div>
+          <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
+            <span className="font-mono font-bold text-[var(--color-text-main)] block">Gluten-Free</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">Bezlepková • 80–85 % hydr.</span>
           </div>
         </div>
       </div>
 
-      {/* Search & Strength Filters */}
+      {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
@@ -201,7 +212,7 @@ export default function FloursPage() {
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder={t('flours.search')}
-            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)] placeholder:text-[var(--color-text-subtle)]"
+            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-1 focus:ring-[var(--color-primary)] placeholder:text-[var(--color-text-subtle)]"
           />
         </div>
 
@@ -212,6 +223,7 @@ export default function FloursPage() {
             { id: 'medium', label: 'W 220–260' },
             { id: 'strong', label: 'W 270–310' },
             { id: 'manitoba', label: 'W 320–380+' },
+            { id: 'gluten_free', label: 'Bezlepkové' },
           ].map(tab => (
             <button
               key={tab.id}
@@ -219,7 +231,7 @@ export default function FloursPage() {
               onClick={() => setStrengthFilter(tab.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer border ${
                 strengthFilter === tab.id
-                  ? 'bg-[var(--color-navy)] text-white border-transparent dark:bg-[var(--color-mustard)] dark:text-black font-bold'
+                  ? 'bg-[var(--color-primary)] text-white border-transparent'
                   : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]'
               }`}
             >
@@ -229,288 +241,441 @@ export default function FloursPage() {
         </div>
       </div>
 
-      {/* Flours Grid / Cards */}
-      {loading ? (
-        <div className="py-12 text-center text-sm text-[var(--color-text-muted)]">
-          {t('common.loading')}
-        </div>
-      ) : flours.length === 0 ? (
-        <div className="py-12 text-center rounded-2xl border border-dashed border-[var(--color-border)] p-8">
-          <Wheat className="w-10 h-10 mx-auto text-[var(--color-text-muted)] mb-2" />
-          <p className="text-sm font-semibold text-[var(--color-text-main)]">Žádná mouka nenalezena</p>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">Zkuste upravit vyhledávání nebo filtr.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {flours.map(flour => (
-            <div
-              key={flour.id}
-              className="group flex flex-col justify-between p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-hover)] hover:shadow-sm transition-all duration-150"
-            >
-              <div>
-                {/* Card Header: Brand, Name & W Badge */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    {flour.brand && (
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] block mb-0.5">
-                        {flour.brand}
-                      </span>
-                    )}
-                    <h3 className="font-bold text-base text-[var(--color-text-main)] font-[family-name:var(--font-outfit)] leading-snug">
-                      {flour.name}
-                    </h3>
-                  </div>
-
-                  <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-bold border ${getStrengthBadgeClass(
-                      flour.strengthCategory
-                    )}`}
+      {/* Flours Table: Single row per flour */}
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden shadow-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-xs font-semibold text-[var(--color-text-muted)]">
+                <th className="py-3 px-4">{t('flours.columns.name')}</th>
+                <th className="py-3 px-3">{t('flours.columns.type')}</th>
+                <th className="py-3 px-3">{t('flours.columns.wIndex')}</th>
+                <th className="py-3 px-3">{t('flours.columns.elasticity')}</th>
+                <th className="py-3 px-3">{t('flours.columns.protein')}</th>
+                <th className="py-3 px-3">{t('flours.columns.hydration')}</th>
+                <th className="py-3 px-3">{t('flours.columns.fermentation')}</th>
+                <th className="py-3 px-3 text-center">{t('flours.columns.inCalculator')}</th>
+                <th className="py-3 px-4 text-right">{t('flours.columns.actions')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--color-border)]">
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-[var(--color-text-muted)]">
+                    {t('common.loading')}
+                  </td>
+                </tr>
+              ) : flours.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-[var(--color-text-muted)]">
+                    Žádná mouka neodpovídá zadaným filtrům.
+                  </td>
+                </tr>
+              ) : (
+                flours.map(flour => (
+                  <tr
+                    key={flour.id}
+                    onClick={() => setDetailModalFlour(flour)}
+                    className="hover:bg-[var(--color-surface-subtle)] cursor-pointer transition-colors group"
                   >
-                    W {flour.wRangeMax ? `${flour.wIndex}–${flour.wRangeMax}` : flour.wIndex}
-                  </span>
-                </div>
+                    {/* Name & Brand */}
+                    <td className="py-3 px-4 font-semibold text-[var(--color-text-main)]">
+                      <div>
+                        <span className="font-bold">{flour.name}</span>
+                        {flour.brand && (
+                          <span className="block text-xs font-normal text-[var(--color-text-muted)]">
+                            {flour.brand}
+                          </span>
+                        )}
+                      </div>
+                    </td>
 
-                {/* Key Metrics Row */}
-                <div className="grid grid-cols-3 gap-2 py-3.5 my-3.5 border-y border-[var(--color-border)] text-center">
-                  <div className="p-1.5 rounded-lg bg-[var(--color-surface-subtle)]">
-                    <span className="text-[10px] uppercase font-semibold text-[var(--color-text-muted)] block">
-                      Bílkoviny
-                    </span>
-                    <span className="text-sm font-bold text-[var(--color-text-main)]">
+                    {/* Type */}
+                    <td className="py-3 px-3 text-xs text-[var(--color-text-muted)] font-mono">
+                      {flour.flourType}
+                    </td>
+
+                    {/* W Index */}
+                    <td className="py-3 px-3">
+                      {getStrengthBadge(flour)}
+                    </td>
+
+                    {/* Elasticity P/L */}
+                    <td className="py-3 px-3 text-xs font-mono text-[var(--color-text-main)]">
+                      {flour.elasticityPL || '—'}
+                    </td>
+
+                    {/* Protein */}
+                    <td className="py-3 px-3 text-xs font-mono font-medium text-[var(--color-text-main)]">
                       {flour.proteinPercentage} %
-                    </span>
-                  </div>
+                    </td>
 
-                  <div className="p-1.5 rounded-lg bg-[var(--color-surface-subtle)]">
-                    <span className="text-[10px] uppercase font-semibold text-[var(--color-text-muted)] block">
-                      Hydratace
-                    </span>
-                    <span className="text-sm font-bold text-[var(--color-text-main)]">
+                    {/* Hydration */}
+                    <td className="py-3 px-3 text-xs font-mono font-medium text-[var(--color-text-main)]">
                       {flour.minHydration}–{flour.maxHydration} %
-                    </span>
-                  </div>
+                    </td>
 
-                  <div className="p-1.5 rounded-lg bg-[var(--color-surface-subtle)]">
-                    <span className="text-[10px] uppercase font-semibold text-[var(--color-text-muted)] block">
-                      Fermentace
-                    </span>
-                    <span className="text-xs font-bold text-[var(--color-text-main)] truncate block">
+                    {/* Fermentation */}
+                    <td className="py-3 px-3 text-xs text-[var(--color-text-muted)] whitespace-nowrap">
                       {flour.recommendedFermentationHours}
-                    </span>
-                  </div>
-                </div>
+                    </td>
 
-                {/* Usage Notes */}
-                {flour.usageNotes && (
-                  <p className="text-xs text-[var(--color-text-muted)] line-clamp-2 leading-relaxed mb-4">
-                    {flour.usageNotes}
-                  </p>
+                    {/* inCalculator toggle switch */}
+                    <td className="py-3 px-3 text-center" onClick={e => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={e => toggleCalculatorVisibility(flour, e)}
+                        className={`inline-flex items-center justify-center w-8 h-5 rounded-full transition-colors cursor-pointer relative ${
+                          flour.showInCalculator !== false
+                            ? 'bg-[var(--color-primary)]'
+                            : 'bg-zinc-300 dark:bg-zinc-700'
+                        }`}
+                        title={flour.showInCalculator !== false ? 'Zobrazuje se v kalkulátoru' : 'Skryto v kalkulátoru'}
+                      >
+                        <span
+                          className={`inline-block w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                            flour.showInCalculator !== false ? 'translate-x-1.5' : '-translate-x-1.5'
+                          }`}
+                        />
+                      </button>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="py-3 px-4 text-right whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setDetailModalFlour(flour)}
+                          className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+                          title="Detail"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(flour)}
+                          className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+                          title="Upravit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        {!flour.isPreset && (
+                          <button
+                            type="button"
+                            onClick={e => handleDelete(flour.id, e)}
+                            className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer"
+                            title="Smazat"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Flour Detail Modal (Where extensive notes / sračky live) */}
+      {detailModalFlour && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          <div className="w-full max-w-xl rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-start justify-between pb-3 border-b border-[var(--color-border)]">
+              <div>
+                {detailModalFlour.brand && (
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] block">
+                    {detailModalFlour.brand}
+                  </span>
                 )}
+                <h3 className="text-xl font-bold font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
+                  {detailModalFlour.name}
+                </h3>
               </div>
+              <button
+                type="button"
+                onClick={() => setDetailModalFlour(null)}
+                className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              {/* Card Footer Actions */}
-              <div className="flex items-center justify-between pt-2 border-t border-[var(--color-border)]/50 text-xs">
-                <Link
-                  href={`/?flourId=${flour.id}`}
-                  className="inline-flex items-center gap-1.5 font-bold text-[var(--color-primary)] hover:underline"
-                >
-                  <span>Použít v kalkulátoru</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => openEditModal(flour)}
-                    className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
-                    title={t('common.edit')}
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(flour.id)}
-                    className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
-                    title={t('common.delete')}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+            {/* Quick stats grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+              <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
+                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">Síla W</span>
+                <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">
+                  {detailModalFlour.wIndex ? `W ${detailModalFlour.wIndex}` : 'Bezlepková'}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
+                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">Elasticita P/L</span>
+                <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">
+                  {detailModalFlour.elasticityPL || 'N/A'}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
+                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">Bílkoviny</span>
+                <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">
+                  {detailModalFlour.proteinPercentage} %
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
+                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">Dop. hydratace</span>
+                <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">
+                  {detailModalFlour.minHydration}–{detailModalFlour.maxHydration} %
+                </span>
               </div>
             </div>
-          ))}
+
+            {/* Fermentation and details */}
+            <div className="space-y-3 text-sm">
+              <div className="p-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
+                <span className="text-xs font-semibold text-[var(--color-text-muted)] block mb-0.5">
+                  Doporučený čas zrání těsta
+                </span>
+                <span className="font-bold text-[var(--color-text-main)]">
+                  {detailModalFlour.recommendedFermentationHours}
+                </span>
+              </div>
+
+              {detailModalFlour.usageNotes && (
+                <div className="p-3.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] space-y-1">
+                  <span className="text-xs font-semibold text-[var(--color-text-muted)] block">
+                    Technologické poznámky a využití
+                  </span>
+                  <p className="text-xs text-[var(--color-text-main)] leading-relaxed">
+                    {detailModalFlour.usageNotes}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer action */}
+            <div className="flex items-center justify-between pt-3 border-t border-[var(--color-border)]">
+              <button
+                type="button"
+                onClick={() => setDetailModalFlour(null)}
+                className="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+              >
+                {t('common.close')}
+              </button>
+
+              <Link
+                href={`/?flourId=${detailModalFlour.id}`}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <span>Použít v kalkulátoru</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Add / Edit Flour Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-lg rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold font-[family-name:var(--font-outfit)] text-[var(--color-text-main)] mb-1">
-              {editingFlour ? t('flours.editFlour') : t('flours.addFlour')}
-            </h2>
-            <p className="text-xs text-[var(--color-text-muted)] mb-5">
-              Zadejte parametry mouky pro přesný výpočet hydratace a fermentace.
-            </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-lg rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-xl space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--color-border)]">
+              <h3 className="text-lg font-bold font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
+                {editingFlour ? t('flours.editFlour') : t('flours.addFlour')}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                  {t('flours.modal.name')} *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formName}
-                  onChange={e => setFormName(e.target.value)}
-                  placeholder="např. Caputo Cuoco Tipo 00"
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    {t('flours.modal.name')} *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formName}
+                    onChange={e => setFormName(e.target.value)}
+                    placeholder="Např. Caputo Nuvola Super"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
                     {t('flours.modal.brand')}
                   </label>
                   <input
                     type="text"
                     value={formBrand}
                     onChange={e => setFormBrand(e.target.value)}
-                    placeholder="např. Mulino Caputo"
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    placeholder="Např. Mulino Caputo"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    {t('flours.modal.wIndex')}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={500}
+                    value={formWIndex}
+                    onChange={e => setFormWIndex(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="260"
+                    disabled={formIsGlutenFree}
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] font-mono disabled:opacity-50"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    {t('flours.modal.elasticity')}
+                  </label>
+                  <input
+                    type="text"
+                    value={formElasticity}
+                    onChange={e => setFormElasticity(e.target.value)}
+                    placeholder="0.50–0.60"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                    {t('flours.modal.protein')} *
+                  </label>
+                  <input
+                    type="number"
+                    step={0.1}
+                    min={1}
+                    max={25}
+                    required
+                    value={formProtein}
+                    onChange={e => setFormProtein(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
                     {t('flours.modal.flourType')}
                   </label>
                   <input
                     type="text"
                     value={formType}
                     onChange={e => setFormType(e.target.value)}
-                    placeholder="tipo_00, tipo_0, manitoba"
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    W Index *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min={80}
-                    max={500}
-                    value={formWIndex}
-                    onChange={e => setFormWIndex(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    placeholder="tipo_00"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    W Max
-                  </label>
-                  <input
-                    type="number"
-                    min={80}
-                    max={500}
-                    value={formWRangeMax}
-                    onChange={e => setFormWRangeMax(e.target.value !== '' ? Number(e.target.value) : '')}
-                    placeholder="volitelné"
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                    Bílkoviny (%) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    min={5}
-                    max={25}
-                    value={formProtein}
-                    onChange={e => setFormProtein(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
                     Min. hydratace (%)
                   </label>
                   <input
                     type="number"
-                    min={45}
+                    min={40}
                     max={100}
                     value={formMinHydration}
                     onChange={e => setFormMinHydration(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
+                  <label className="block font-semibold text-[var(--color-text-main)] mb-1">
                     Max. hydratace (%)
                   </label>
                   <input
                     type="number"
-                    min={45}
+                    min={40}
                     max={100}
                     value={formMaxHydration}
                     onChange={e => setFormMaxHydration(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                  Doporučená fermentace
+                <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                  {t('flours.modal.fermentationHours')}
                 </label>
                 <input
                   type="text"
                   value={formFermentation}
                   onChange={e => setFormFermentation(e.target.value)}
-                  placeholder="např. 24–48 h (chlad)"
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                  placeholder="24–48 h (chlad)"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-text-main)] mb-1">
-                  Využití a poznámky
+                <label className="block font-semibold text-[var(--color-text-main)] mb-1">
+                  {t('flours.modal.usageNotes')}
                 </label>
                 <textarea
                   rows={3}
                   value={formNotes}
                   onChange={e => setFormNotes(e.target.value)}
-                  placeholder="Vhodné pro klasickou pizzu, focaccia, biga..."
-                  className="w-full px-3.5 py-2 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-primary)]"
+                  placeholder="Popis, doporučení, vhodné receptury..."
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
+              </div>
+
+              {/* Checkboxes: inCalculator & isGlutenFree */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-1">
+                <label className="flex items-center gap-2 cursor-pointer font-medium text-[var(--color-text-main)]">
+                  <input
+                    type="checkbox"
+                    checked={formShowInCalculator}
+                    onChange={e => setFormShowInCalculator(e.target.checked)}
+                    className="rounded-sm accent-[var(--color-primary)]"
+                  />
+                  <span>{t('flours.modal.showInCalculator')}</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer font-medium text-[var(--color-text-main)]">
+                  <input
+                    type="checkbox"
+                    checked={formIsGlutenFree}
+                    onChange={e => {
+                      setFormIsGlutenFree(e.target.checked);
+                      if (e.target.checked) setFormWIndex('');
+                    }}
+                    className="rounded-sm accent-[var(--color-primary)]"
+                  />
+                  <span>{t('flours.modal.isGlutenFree')}</span>
+                </label>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-[var(--color-border)]">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
                 >
                   {t('flours.modal.cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-[var(--color-primary)] text-[var(--color-primary-contrast)] hover:bg-[var(--color-primary-hover)] shadow-xs cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold cursor-pointer"
                 >
                   {t('flours.modal.save')}
                 </button>

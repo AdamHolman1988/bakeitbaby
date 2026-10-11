@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAppLocale } from '@/context/locale-context';
-import { Calculator, BookOpen, Wheat, Menu, X, Flame } from 'lucide-react';
+import { Calculator, ChefHat, BookOpen, Wheat, Menu, X, Flame } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageSwitcher } from '@/components/language-switcher';
 
@@ -19,6 +19,12 @@ export function Sidebar() {
       label: t('nav.calculator'),
       icon: Calculator,
       active: pathname === '/' || pathname === '/calculator',
+    },
+    {
+      href: '/doughs',
+      label: t('nav.doughs'),
+      icon: ChefHat,
+      active: pathname.startsWith('/doughs'),
     },
     {
       href: '/recipes',
@@ -101,51 +107,35 @@ export function Sidebar() {
           </button>
         </div>
 
-        {/* Navigation Items (STRICT ORDER: 1. Calculator, 2. Recipes, 3. Flours) */}
-        <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
-          {navItems.map((item, index) => {
+        {/* Navigation Items */}
+        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+          {navItems.map(item => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl font-medium text-sm transition-all duration-150 ${
+                className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                   item.active
-                    ? 'bg-[var(--color-primary)] text-[var(--color-primary-contrast)] shadow-sm font-semibold'
+                    ? 'bg-[var(--color-primary)] text-[var(--color-primary-contrast)] shadow-xs'
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-surface-hover)]'
                 }`}
               >
-                <div
-                  className={`flex items-center justify-center w-7 h-7 rounded-lg ${
-                    item.active
-                      ? 'bg-black/15 text-[var(--color-primary-contrast)]'
-                      : 'text-[var(--color-text-muted)]'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                </div>
-                <div className="flex-1 flex items-center justify-between">
-                  <span>{item.label}</span>
-                  <span className="text-[10px] opacity-70 font-mono">0{index + 1}</span>
-                </div>
+                <Icon className="w-5 h-5 shrink-0" />
+                <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Sidebar Footer with Theme and Language switchers */}
-        <div className="p-4 border-t border-[var(--color-border)] space-y-3 bg-[var(--color-surface-subtle)]">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-semibold text-[var(--color-text-muted)]">Vzhled / Jazyk</span>
-          </div>
-          <div className="flex items-center justify-between gap-2">
+        {/* Footer controls */}
+        <div className="p-4 border-t border-[var(--color-border)] flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
-          <div className="text-[11px] text-[var(--color-text-subtle)] text-center pt-1 font-mono">
-            BakeItBaby v0.1 • MIT
-          </div>
+          <span className="text-[11px] font-mono text-[var(--color-text-subtle)]">v1.2.0</span>
         </div>
       </aside>
     </>

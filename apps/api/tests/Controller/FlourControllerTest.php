@@ -19,7 +19,7 @@ final class FlourControllerTest extends WebTestCase
         $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertArrayHasKey('data', $data);
         self::assertArrayHasKey('total', $data);
-        self::assertGreaterThanOrEqual(10, $data['total']);
+        self::assertGreaterThanOrEqual(12, $data['total']);
     }
 
     public function testFilterFloursByStrengthCategory(): void
@@ -34,6 +34,19 @@ final class FlourControllerTest extends WebTestCase
             self::assertGreaterThanOrEqual(320, $flour['wIndex']);
             self::assertSame('manitoba', $flour['strengthCategory']);
         }
+    }
+
+    public function testGlutenFreeFlourReturnedCorrectly(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/api/flours?strength=gluten_free');
+
+        self::assertResponseIsSuccessful();
+        $data = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertNotEmpty($data['data']);
+        self::assertSame('gluten_free', $data['data'][0]['strengthCategory']);
+        self::assertTrue($data['data'][0]['isGlutenFree']);
     }
 
     public function testCreateAndUpdateCustomFlour(): void
@@ -51,12 +64,14 @@ final class FlourControllerTest extends WebTestCase
                 'name' => 'Test Molino Artisan 00',
                 'brand' => 'Artisan Mills',
                 'wIndex' => 280,
+                'elasticityPL' => '0.55',
                 'proteinPercentage' => 12.8,
                 'flourType' => 'tipo_00',
                 'minHydration' => 60,
                 'maxHydration' => 68,
                 'recommendedFermentationHours' => '16–24 h',
                 'usageNotes' => 'Super test flour',
+                'showInCalculator' => true,
             ], JSON_THROW_ON_ERROR)
         );
 
@@ -65,6 +80,7 @@ final class FlourControllerTest extends WebTestCase
         $newId = $createData['data']['id'];
         self::assertIsInt($newId);
         self::assertSame('Test Molino Artisan 00', $createData['data']['name']);
+        self::assertSame('0.55', $createData['data']['elasticityPL']);
         self::assertSame('strong', $createData['data']['strengthCategory']);
 
         // 2. Update
@@ -77,6 +93,7 @@ final class FlourControllerTest extends WebTestCase
             json_encode([
                 'name' => 'Test Molino Artisan 00 Modified',
                 'wIndex' => 290,
+                'showInCalculator' => false,
             ], JSON_THROW_ON_ERROR)
         );
 
@@ -84,6 +101,7 @@ final class FlourControllerTest extends WebTestCase
         $updateData = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         self::assertSame('Test Molino Artisan 00 Modified', $updateData['data']['name']);
         self::assertSame(290, $updateData['data']['wIndex']);
+        self::assertFalse($updateData['data']['showInCalculator']);
 
         // 3. Delete
         $client->request('DELETE', '/api/flours/' . $newId);

@@ -2,73 +2,77 @@
 
 @layer base {
   :root {
-    /* Light Mode: Moderní & Vibrant */
-    --color-bg: #F6F2E9;
+    /* Light Mode: Moderní Minimalistický & Vibrant Artisan */
+    --color-bg: #F8F5EE;
     --color-surface: #FFFFFF;
-    --color-surface-subtle: #FAF7F0;
-    --color-surface-hover: #F0EADF;
+    --color-surface-subtle: #F2EDE2;
+    --color-surface-hover: #E9E2D4;
     --color-card: #FFFFFF;
-    --color-border: #E4DCD0;
-    --color-border-hover: #D1C6B4;
+    --color-border: #E2DBD0;
+    --color-border-hover: #D0C6B6;
 
-    --color-primary: #F25C05;
-    --color-primary-hover: #DB5000;
+    --color-primary: #D84A1B;
+    --color-primary-hover: #BF3D12;
     --color-primary-contrast: #FFFFFF;
 
-    --color-secondary: #2D6A4F;
-    --color-secondary-hover: #23543E;
+    --color-secondary: #2B6149;
+    --color-secondary-hover: #22513C;
     --color-secondary-contrast: #FFFFFF;
 
     --color-navy: #152238;
     --color-dark-grey: #374151;
 
-    --color-text-main: #152238;
+    --color-text-main: #1B2432;
     --color-text-muted: #5B677A;
-    --color-text-subtle: #8896AB;
+    --color-text-subtle: #8E9BAE;
 
-    --color-badge-weak-bg: #E3E8EC;
-    --color-badge-weak-text: #37474F;
-    --color-badge-medium-bg: #FFF3CD;
-    --color-badge-medium-text: #856404;
-    --color-badge-strong-bg: #FFE8D6;
-    --color-badge-strong-text: #C44500;
-    --color-badge-manitoba-bg: #D8F3DC;
-    --color-badge-manitoba-text: #1B4332;
+    --color-badge-weak-bg: #EDF0F3;
+    --color-badge-weak-text: #475569;
+    --color-badge-medium-bg: #FEF3C7;
+    --color-badge-medium-text: #92400E;
+    --color-badge-strong-bg: #FFEDD5;
+    --color-badge-strong-text: #C2410C;
+    --color-badge-manitoba-bg: #DCFCE7;
+    --color-badge-manitoba-text: #166534;
+    --color-badge-glutenfree-bg: #E0E7FF;
+    --color-badge-glutenfree-text: #3730A3;
   }
 
   .dark {
     /* Dark Mode: Moderní Rustikál */
-    --color-bg: #141A24;
-    --color-surface: #1B2330;
-    --color-surface-subtle: #222B3B;
-    --color-surface-hover: #293447;
-    --color-card: #1D2534;
-    --color-border: #2D394D;
-    --color-border-hover: #3E4E68;
+    --color-bg: #11161F;
+    --color-surface: #18202C;
+    --color-surface-subtle: #1F2937;
+    --color-surface-hover: #273447;
+    --color-card: #18202C;
+    --color-border: #283548;
+    --color-border-hover: #384860;
 
-    --color-primary: #C85234;
-    --color-primary-hover: #B44326;
+    --color-primary: #C94C2B;
+    --color-primary-hover: #B23E1F;
     --color-primary-contrast: #FFFFFF;
 
-    --color-secondary: #557A5E;
-    --color-secondary-hover: #45654D;
+    --color-secondary: #486E53;
+    --color-secondary-hover: #3B5B44;
     --color-secondary-contrast: #FFFFFF;
 
-    --color-mustard: #E0A93B;
-    --color-mustard-hover: #CF982B;
+    --color-mustard: #D9A036;
+    --color-mustard-hover: #C6902A;
 
-    --color-text-main: #ECE7DE;
-    --color-text-muted: #B0A99C;
-    --color-text-subtle: #7A756B;
+    --color-text-main: #EAE6DE;
+    --color-text-muted: #9BA4B2;
+    --color-text-subtle: #677385;
 
-    --color-badge-weak-bg: #263238;
-    --color-badge-weak-text: #CFD8DC;
-    --color-badge-medium-bg: #423512;
-    --color-badge-medium-text: #FAD02C;
-    --color-badge-strong-bg: #4E2519;
-    --color-badge-strong-text: #FF8A65;
-    --color-badge-manitoba-bg: #1B3828;
-    --color-badge-manitoba-text: #81C784;
+    --color-badge-weak-bg: #1E293B;
+    --color-badge-weak-text: #94A3B8;
+    --color-badge-medium-bg: #3B2D0E;
+    --color-badge-medium-text: #FBBF24;
+    --color-badge-strong-bg: #3E1E12;
+    --color-badge-strong-text: #FB923C;
+    --color-badge-manitoba-bg: #143522;
+    --color-badge-manitoba-text: #86EFAC;
+    --color-badge-glutenfree-bg: #1E1B4B;
+    --color-badge-glutenfree-text: #A5B4FC;
   }
 
   body {

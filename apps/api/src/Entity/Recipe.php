@@ -30,55 +30,26 @@ class Recipe
     #[Assert\NotBlank]
     private string $pizzaStyle = 'neapolitan';
 
-    #[ORM\Column(type: Types::STRING, length: 32)]
-    #[Assert\NotBlank]
-    private string $prefermentType = 'direct';
-
-    #[ORM\Column(type: Types::SMALLINT)]
-    #[Assert\NotNull]
-    #[Assert\Range(min: 1, max: 100)]
-    private int $doughBallsCount = 4;
-
-    #[ORM\Column(type: Types::SMALLINT)]
-    #[Assert\NotNull]
-    #[Assert\Range(min: 50, max: 1000)]
-    private int $ballWeightGrams = 260;
-
-    #[ORM\Column(type: Types::FLOAT)]
-    #[Assert\NotNull]
-    #[Assert\Range(min: 40.0, max: 100.0)]
-    private float $hydrationPercentage = 65.0;
-
-    #[ORM\Column(type: Types::FLOAT)]
-    #[Assert\NotNull]
-    #[Assert\Range(min: 0.0, max: 10.0)]
-    private float $saltPercentage = 2.8;
-
-    #[ORM\Column(type: Types::FLOAT)]
-    #[Assert\NotNull]
-    private float $yeastPercentage = 0.15;
-
-    #[ORM\Column(type: Types::STRING, length: 32)]
-    #[Assert\NotBlank]
-    private string $yeastType = 'fresh';
-
-    #[ORM\Column(type: Types::FLOAT)]
-    private float $oilPercentage = 0.0;
-
-    #[ORM\Column(type: Types::FLOAT)]
-    private float $sugarPercentage = 0.0;
-
-    #[ORM\Column(type: Types::FLOAT)]
-    private float $fermentationRtHours = 8.0;
-
-    #[ORM\Column(type: Types::FLOAT)]
-    private float $fermentationCtHours = 16.0;
-
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
-    private ?int $flourId = null;
+    private ?int $doughId = null;
 
-    #[ORM\Column(type: Types::STRING, length: 128, nullable: true)]
-    private ?string $flourName = null;
+    #[ORM\Column(type: Types::STRING, length: 160, nullable: true)]
+    private ?string $doughName = null;
+
+    #[ORM\Column(type: Types::SMALLINT)]
+    private int $prepTimeMinutes = 15;
+
+    #[ORM\Column(type: Types::SMALLINT)]
+    private int $bakeTemperature = 450;
+
+    #[ORM\Column(type: Types::SMALLINT)]
+    private int $bakeTimeSeconds = 90;
+
+    /**
+     * @var list<array{name: string, amount: string, stage: string}>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $ingredients = [];
 
     /**
      * @var list<string>
@@ -96,44 +67,31 @@ class Recipe
     private \DateTimeImmutable $updatedAt;
 
     /**
+     * @param list<array{name: string, amount: string, stage: string}> $ingredients
      * @param list<string> $instructions
      */
     public function __construct(
         string $name,
         string $pizzaStyle = 'neapolitan',
-        string $prefermentType = 'direct',
-        int $doughBallsCount = 4,
-        int $ballWeightGrams = 260,
-        float $hydrationPercentage = 65.0,
-        float $saltPercentage = 2.8,
-        float $yeastPercentage = 0.15,
-        string $yeastType = 'fresh',
-        float $oilPercentage = 0.0,
-        float $sugarPercentage = 0.0,
-        float $fermentationRtHours = 8.0,
-        float $fermentationCtHours = 16.0,
         ?string $description = null,
-        ?int $flourId = null,
-        ?string $flourName = null,
+        ?int $doughId = null,
+        ?string $doughName = null,
+        int $prepTimeMinutes = 15,
+        int $bakeTemperature = 450,
+        int $bakeTimeSeconds = 90,
+        array $ingredients = [],
         array $instructions = [],
         bool $isPreset = false
     ) {
         $this->name = $name;
         $this->pizzaStyle = $pizzaStyle;
-        $this->prefermentType = $prefermentType;
-        $this->doughBallsCount = $doughBallsCount;
-        $this->ballWeightGrams = $ballWeightGrams;
-        $this->hydrationPercentage = $hydrationPercentage;
-        $this->saltPercentage = $saltPercentage;
-        $this->yeastPercentage = $yeastPercentage;
-        $this->yeastType = $yeastType;
-        $this->oilPercentage = $oilPercentage;
-        $this->sugarPercentage = $sugarPercentage;
-        $this->fermentationRtHours = $fermentationRtHours;
-        $this->fermentationCtHours = $fermentationCtHours;
         $this->description = $description;
-        $this->flourId = $flourId;
-        $this->flourName = $flourName;
+        $this->doughId = $doughId;
+        $this->doughName = $doughName;
+        $this->prepTimeMinutes = $prepTimeMinutes;
+        $this->bakeTemperature = $bakeTemperature;
+        $this->bakeTimeSeconds = $bakeTimeSeconds;
+        $this->ingredients = $ingredients;
         $this->instructions = $instructions;
         $this->isPreset = $isPreset;
         $this->createdAt = new \DateTimeImmutable();
@@ -184,146 +142,75 @@ class Recipe
         return $this;
     }
 
-    public function getPrefermentType(): string
+    public function getDoughId(): ?int
     {
-        return $this->prefermentType;
+        return $this->doughId;
     }
 
-    public function setPrefermentType(string $prefermentType): self
+    public function setDoughId(?int $doughId): self
     {
-        $this->prefermentType = $prefermentType;
+        $this->doughId = $doughId;
         return $this;
     }
 
-    public function getDoughBallsCount(): int
+    public function getDoughName(): ?string
     {
-        return $this->doughBallsCount;
+        return $this->doughName;
     }
 
-    public function setDoughBallsCount(int $doughBallsCount): self
+    public function setDoughName(?string $doughName): self
     {
-        $this->doughBallsCount = $doughBallsCount;
+        $this->doughName = $doughName;
         return $this;
     }
 
-    public function getBallWeightGrams(): int
+    public function getPrepTimeMinutes(): int
     {
-        return $this->ballWeightGrams;
+        return $this->prepTimeMinutes;
     }
 
-    public function setBallWeightGrams(int $ballWeightGrams): self
+    public function setPrepTimeMinutes(int $prepTimeMinutes): self
     {
-        $this->ballWeightGrams = $ballWeightGrams;
+        $this->prepTimeMinutes = $prepTimeMinutes;
         return $this;
     }
 
-    public function getHydrationPercentage(): float
+    public function getBakeTemperature(): int
     {
-        return $this->hydrationPercentage;
+        return $this->bakeTemperature;
     }
 
-    public function setHydrationPercentage(float $hydrationPercentage): self
+    public function setBakeTemperature(int $bakeTemperature): self
     {
-        $this->hydrationPercentage = $hydrationPercentage;
+        $this->bakeTemperature = $bakeTemperature;
         return $this;
     }
 
-    public function getSaltPercentage(): float
+    public function getBakeTimeSeconds(): int
     {
-        return $this->saltPercentage;
+        return $this->bakeTimeSeconds;
     }
 
-    public function setSaltPercentage(float $saltPercentage): self
+    public function setBakeTimeSeconds(int $bakeTimeSeconds): self
     {
-        $this->saltPercentage = $saltPercentage;
+        $this->bakeTimeSeconds = $bakeTimeSeconds;
         return $this;
     }
 
-    public function getYeastPercentage(): float
+    /**
+     * @return list<array{name: string, amount: string, stage: string}>
+     */
+    public function getIngredients(): array
     {
-        return $this->yeastPercentage;
+        return $this->ingredients;
     }
 
-    public function setYeastPercentage(float $yeastPercentage): self
+    /**
+     * @param list<array{name: string, amount: string, stage: string}> $ingredients
+     */
+    public function setIngredients(array $ingredients): self
     {
-        $this->yeastPercentage = $yeastPercentage;
-        return $this;
-    }
-
-    public function getYeastType(): string
-    {
-        return $this->yeastType;
-    }
-
-    public function setYeastType(string $yeastType): self
-    {
-        $this->yeastType = $yeastType;
-        return $this;
-    }
-
-    public function getOilPercentage(): float
-    {
-        return $this->oilPercentage;
-    }
-
-    public function setOilPercentage(float $oilPercentage): self
-    {
-        $this->oilPercentage = $oilPercentage;
-        return $this;
-    }
-
-    public function getSugarPercentage(): float
-    {
-        return $this->sugarPercentage;
-    }
-
-    public function setSugarPercentage(float $sugarPercentage): self
-    {
-        $this->sugarPercentage = $sugarPercentage;
-        return $this;
-    }
-
-    public function getFermentationRtHours(): float
-    {
-        return $this->fermentationRtHours;
-    }
-
-    public function setFermentationRtHours(float $fermentationRtHours): self
-    {
-        $this->fermentationRtHours = $fermentationRtHours;
-        return $this;
-    }
-
-    public function getFermentationCtHours(): float
-    {
-        return $this->fermentationCtHours;
-    }
-
-    public function setFermentationCtHours(float $fermentationCtHours): self
-    {
-        $this->fermentationCtHours = $fermentationCtHours;
-        return $this;
-    }
-
-    public function getFlourId(): ?int
-    {
-        return $this->flourId;
-    }
-
-    public function setFlourId(?int $flourId): self
-    {
-        $this->flourId = $flourId;
-        return $this;
-    }
-
-    public function getFlourName(): ?string
-    {
-        return $this->flourName;
-    }
-
-    public function setFlourName(?string $flourName): self
-    {
-        $this->flourName = $flourName;
+        $this->ingredients = $ingredients;
         return $this;
     }
 
@@ -375,19 +262,12 @@ class Recipe
             'name' => $this->name,
             'description' => $this->description,
             'pizzaStyle' => $this->pizzaStyle,
-            'prefermentType' => $this->prefermentType,
-            'doughBallsCount' => $this->doughBallsCount,
-            'ballWeightGrams' => $this->ballWeightGrams,
-            'hydrationPercentage' => $this->hydrationPercentage,
-            'saltPercentage' => $this->saltPercentage,
-            'yeastPercentage' => $this->yeastPercentage,
-            'yeastType' => $this->yeastType,
-            'oilPercentage' => $this->oilPercentage,
-            'sugarPercentage' => $this->sugarPercentage,
-            'fermentationRtHours' => $this->fermentationRtHours,
-            'fermentationCtHours' => $this->fermentationCtHours,
-            'flourId' => $this->flourId,
-            'flourName' => $this->flourName,
+            'doughId' => $this->doughId,
+            'doughName' => $this->doughName,
+            'prepTimeMinutes' => $this->prepTimeMinutes,
+            'bakeTemperature' => $this->bakeTemperature,
+            'bakeTimeSeconds' => $this->bakeTimeSeconds,
+            'ingredients' => $this->ingredients,
             'instructions' => $this->instructions,
             'isPreset' => $this->isPreset,
             'createdAt' => $this->createdAt->format(\DateTimeInterface::ATOM),

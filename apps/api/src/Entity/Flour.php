@@ -27,18 +27,21 @@ class Flour
     #[Assert\Length(max: 128)]
     private ?string $brand = null;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    #[Assert\NotNull]
-    #[Assert\Range(min: 80, max: 500)]
-    private int $wIndex;
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    #[Assert\Range(min: 0, max: 500)]
+    private ?int $wIndex = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
-    #[Assert\Range(min: 80, max: 500)]
+    #[Assert\Range(min: 0, max: 500)]
     private ?int $wRangeMax = null;
+
+    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
+    #[Assert\Length(max: 32)]
+    private ?string $elasticityPL = null;
 
     #[ORM\Column(type: Types::FLOAT)]
     #[Assert\NotNull]
-    #[Assert\Range(min: 5.0, max: 25.0)]
+    #[Assert\Range(min: 1.0, max: 25.0)]
     private float $proteinPercentage;
 
     #[ORM\Column(type: Types::STRING, length: 64)]
@@ -64,6 +67,12 @@ class Flour
     private ?string $usageNotes = null;
 
     #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $showInCalculator = true;
+
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $isGlutenFree = false;
+
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $isPreset = false;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
@@ -74,7 +83,7 @@ class Flour
 
     public function __construct(
         string $name,
-        int $wIndex,
+        ?int $wIndex,
         float $proteinPercentage,
         string $flourType = 'tipo_00',
         int $minHydration = 55,
@@ -82,6 +91,9 @@ class Flour
         string $recommendedFermentationHours = '8–14 h (RT)',
         ?string $brand = null,
         ?string $usageNotes = null,
+        ?string $elasticityPL = null,
+        bool $showInCalculator = true,
+        bool $isGlutenFree = false,
         bool $isPreset = false
     ) {
         $this->name = $name;
@@ -93,6 +105,9 @@ class Flour
         $this->recommendedFermentationHours = $recommendedFermentationHours;
         $this->brand = $brand;
         $this->usageNotes = $usageNotes;
+        $this->elasticityPL = $elasticityPL;
+        $this->showInCalculator = $showInCalculator;
+        $this->isGlutenFree = $isGlutenFree;
         $this->isPreset = $isPreset;
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
@@ -131,12 +146,12 @@ class Flour
         return $this;
     }
 
-    public function getWIndex(): int
+    public function getWIndex(): ?int
     {
         return $this->wIndex;
     }
 
-    public function setWIndex(int $wIndex): self
+    public function setWIndex(?int $wIndex): self
     {
         $this->wIndex = $wIndex;
         return $this;
@@ -150,6 +165,17 @@ class Flour
     public function setWRangeMax(?int $wRangeMax): self
     {
         $this->wRangeMax = $wRangeMax;
+        return $this;
+    }
+
+    public function getElasticityPL(): ?string
+    {
+        return $this->elasticityPL;
+    }
+
+    public function setElasticityPL(?string $elasticityPL): self
+    {
+        $this->elasticityPL = $elasticityPL;
         return $this;
     }
 
@@ -219,6 +245,28 @@ class Flour
         return $this;
     }
 
+    public function isShowInCalculator(): bool
+    {
+        return $this->showInCalculator;
+    }
+
+    public function setShowInCalculator(bool $showInCalculator): self
+    {
+        $this->showInCalculator = $showInCalculator;
+        return $this;
+    }
+
+    public function isGlutenFree(): bool
+    {
+        return $this->isGlutenFree;
+    }
+
+    public function setIsGlutenFree(bool $isGlutenFree): self
+    {
+        $this->isGlutenFree = $isGlutenFree;
+        return $this;
+    }
+
     public function isPreset(): bool
     {
         return $this->isPreset;
@@ -251,12 +299,15 @@ class Flour
             'brand' => $this->brand,
             'wIndex' => $this->wIndex,
             'wRangeMax' => $this->wRangeMax,
+            'elasticityPL' => $this->elasticityPL,
             'proteinPercentage' => $this->proteinPercentage,
             'flourType' => $this->flourType,
             'minHydration' => $this->minHydration,
             'maxHydration' => $this->maxHydration,
             'recommendedFermentationHours' => $this->recommendedFermentationHours,
             'usageNotes' => $this->usageNotes,
+            'showInCalculator' => $this->showInCalculator,
+            'isGlutenFree' => $this->isGlutenFree,
             'isPreset' => $this->isPreset,
             'strengthCategory' => $this->getStrengthCategory(),
             'createdAt' => $this->createdAt->format(\DateTimeInterface::ATOM),
@@ -266,6 +317,9 @@ class Flour
 
     public function getStrengthCategory(): string
     {
+        if ($this->isGlutenFree || $this->wIndex === null) {
+            return 'gluten_free';
+        }
         if ($this->wIndex < 220) {
             return 'weak';
         }

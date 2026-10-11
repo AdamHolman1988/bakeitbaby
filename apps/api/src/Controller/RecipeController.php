@@ -59,20 +59,17 @@ final class RecipeController extends AbstractController
 
         $name = isset($payload['name']) ? (string) $payload['name'] : '';
         $pizzaStyle = isset($payload['pizzaStyle']) ? (string) $payload['pizzaStyle'] : 'neapolitan';
-        $prefermentType = isset($payload['prefermentType']) ? (string) $payload['prefermentType'] : 'direct';
-        $doughBallsCount = isset($payload['doughBallsCount']) ? (int) $payload['doughBallsCount'] : 4;
-        $ballWeightGrams = isset($payload['ballWeightGrams']) ? (int) $payload['ballWeightGrams'] : 260;
-        $hydrationPercentage = isset($payload['hydrationPercentage']) ? (float) $payload['hydrationPercentage'] : 65.0;
-        $saltPercentage = isset($payload['saltPercentage']) ? (float) $payload['saltPercentage'] : 2.8;
-        $yeastPercentage = isset($payload['yeastPercentage']) ? (float) $payload['yeastPercentage'] : 0.15;
-        $yeastType = isset($payload['yeastType']) ? (string) $payload['yeastType'] : 'fresh';
-        $oilPercentage = isset($payload['oilPercentage']) ? (float) $payload['oilPercentage'] : 0.0;
-        $sugarPercentage = isset($payload['sugarPercentage']) ? (float) $payload['sugarPercentage'] : 0.0;
-        $fermentationRtHours = isset($payload['fermentationRtHours']) ? (float) $payload['fermentationRtHours'] : 8.0;
-        $fermentationCtHours = isset($payload['fermentationCtHours']) ? (float) $payload['fermentationCtHours'] : 16.0;
         $description = isset($payload['description']) ? (string) $payload['description'] : null;
-        $flourId = isset($payload['flourId']) && is_numeric($payload['flourId']) ? (int) $payload['flourId'] : null;
-        $flourName = isset($payload['flourName']) ? (string) $payload['flourName'] : null;
+        $doughId = isset($payload['doughId']) && is_numeric($payload['doughId']) ? (int) $payload['doughId'] : null;
+        $doughName = isset($payload['doughName']) ? (string) $payload['doughName'] : null;
+        $prepTimeMinutes = isset($payload['prepTimeMinutes']) ? (int) $payload['prepTimeMinutes'] : 15;
+        $bakeTemperature = isset($payload['bakeTemperature']) ? (int) $payload['bakeTemperature'] : 450;
+        $bakeTimeSeconds = isset($payload['bakeTimeSeconds']) ? (int) $payload['bakeTimeSeconds'] : 90;
+
+        /** @var list<array{name: string, amount: string, stage: string}> $ingredients */
+        $ingredients = isset($payload['ingredients']) && is_array($payload['ingredients'])
+            ? array_values($payload['ingredients'])
+            : [];
 
         /** @var list<string> $instructions */
         $instructions = isset($payload['instructions']) && is_array($payload['instructions'])
@@ -82,20 +79,13 @@ final class RecipeController extends AbstractController
         $recipe = new Recipe(
             name: $name,
             pizzaStyle: $pizzaStyle,
-            prefermentType: $prefermentType,
-            doughBallsCount: $doughBallsCount,
-            ballWeightGrams: $ballWeightGrams,
-            hydrationPercentage: $hydrationPercentage,
-            saltPercentage: $saltPercentage,
-            yeastPercentage: $yeastPercentage,
-            yeastType: $yeastType,
-            oilPercentage: $oilPercentage,
-            sugarPercentage: $sugarPercentage,
-            fermentationRtHours: $fermentationRtHours,
-            fermentationCtHours: $fermentationCtHours,
             description: $description,
-            flourId: $flourId,
-            flourName: $flourName,
+            doughId: $doughId,
+            doughName: $doughName,
+            prepTimeMinutes: $prepTimeMinutes,
+            bakeTemperature: $bakeTemperature,
+            bakeTimeSeconds: $bakeTimeSeconds,
+            ingredients: $ingredients,
             instructions: $instructions,
             isPreset: false
         );
@@ -129,19 +119,14 @@ final class RecipeController extends AbstractController
         if (isset($payload['name'])) $recipe->setName((string) $payload['name']);
         if (isset($payload['description'])) $recipe->setDescription((string) $payload['description']);
         if (isset($payload['pizzaStyle'])) $recipe->setPizzaStyle((string) $payload['pizzaStyle']);
-        if (isset($payload['prefermentType'])) $recipe->setPrefermentType((string) $payload['prefermentType']);
-        if (isset($payload['doughBallsCount'])) $recipe->setDoughBallsCount((int) $payload['doughBallsCount']);
-        if (isset($payload['ballWeightGrams'])) $recipe->setBallWeightGrams((int) $payload['ballWeightGrams']);
-        if (isset($payload['hydrationPercentage'])) $recipe->setHydrationPercentage((float) $payload['hydrationPercentage']);
-        if (isset($payload['saltPercentage'])) $recipe->setSaltPercentage((float) $payload['saltPercentage']);
-        if (isset($payload['yeastPercentage'])) $recipe->setYeastPercentage((float) $payload['yeastPercentage']);
-        if (isset($payload['yeastType'])) $recipe->setYeastType((string) $payload['yeastType']);
-        if (isset($payload['oilPercentage'])) $recipe->setOilPercentage((float) $payload['oilPercentage']);
-        if (isset($payload['sugarPercentage'])) $recipe->setSugarPercentage((float) $payload['sugarPercentage']);
-        if (isset($payload['fermentationRtHours'])) $recipe->setFermentationRtHours((float) $payload['fermentationRtHours']);
-        if (isset($payload['fermentationCtHours'])) $recipe->setFermentationCtHours((float) $payload['fermentationCtHours']);
-        if (array_key_exists('flourId', $payload)) $recipe->setFlourId($payload['flourId'] !== null ? (int) $payload['flourId'] : null);
-        if (isset($payload['flourName'])) $recipe->setFlourName((string) $payload['flourName']);
+        if (array_key_exists('doughId', $payload)) $recipe->setDoughId($payload['doughId'] !== null ? (int) $payload['doughId'] : null);
+        if (array_key_exists('doughName', $payload)) $recipe->setDoughName($payload['doughName'] !== null ? (string) $payload['doughName'] : null);
+        if (isset($payload['prepTimeMinutes'])) $recipe->setPrepTimeMinutes((int) $payload['prepTimeMinutes']);
+        if (isset($payload['bakeTemperature'])) $recipe->setBakeTemperature((int) $payload['bakeTemperature']);
+        if (isset($payload['bakeTimeSeconds'])) $recipe->setBakeTimeSeconds((int) $payload['bakeTimeSeconds']);
+        if (isset($payload['ingredients']) && is_array($payload['ingredients'])) {
+            $recipe->setIngredients(array_values($payload['ingredients']));
+        }
         if (isset($payload['instructions']) && is_array($payload['instructions'])) {
             $recipe->setInstructions(array_values(array_map('strval', $payload['instructions'])));
         }

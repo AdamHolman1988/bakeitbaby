@@ -9,7 +9,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('FloursPage Component', () => {
-  it('renders flour catalog, strength reference table, and filters', async () => {
+  it('renders flour registry table with elasticity, Caputo Nuvola Super, and Fioreglut', async () => {
     render(
       <ThemeProvider attribute="class">
         <LocaleProvider>
@@ -19,17 +19,19 @@ describe('FloursPage Component', () => {
     );
 
     // Check heading
-    expect(screen.getByText('Katalog a správa mouk')).toBeInTheDocument();
+    expect(screen.getByText('Katalog a registr mouk')).toBeInTheDocument();
 
-    // Check W strength reference cards (appears in banner and filter buttons)
-    expect(screen.getAllByText('W 160–200').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('W 220–260').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('W 270–310').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('W 320–380+').length).toBeGreaterThanOrEqual(1);
+    // Check table headers
+    expect(screen.getByText('Elasticita (P/L)')).toBeInTheDocument();
+    expect(screen.getByText('V kalkulátoru')).toBeInTheDocument();
 
     // Wait for initial flours to load
     const caputoPizzeria = await screen.findByText('Caputo Pizzeria Tipo 00');
     expect(caputoPizzeria).toBeInTheDocument();
+
+    // Verify Caputo Nuvola Super and Caputo Fioreglut
+    expect(await screen.findByText('Caputo Nuvola Super (Super Cloud)')).toBeInTheDocument();
+    expect(await screen.findByText('Caputo Fioreglut (Gluten-Free)')).toBeInTheDocument();
 
     // Test search filter
     const searchInput = screen.getByPlaceholderText('Hledat mouku podle názvu, značky...');

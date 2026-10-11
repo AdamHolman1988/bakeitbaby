@@ -69,22 +69,15 @@ export async function saveRecipe(recipe: Partial<RecipeItem>): Promise<RecipeIte
 
   const newItem: RecipeItem = {
     id: recipe.id || Date.now(),
-    name: recipe.name || 'Nový recept',
+    name: recipe.name || 'Nový recept na pizzu',
     description: recipe.description || '',
     pizzaStyle: recipe.pizzaStyle || 'neapolitan',
-    prefermentType: recipe.prefermentType || 'direct',
-    doughBallsCount: recipe.doughBallsCount || 4,
-    ballWeightGrams: recipe.ballWeightGrams || 260,
-    hydrationPercentage: recipe.hydrationPercentage || 65,
-    saltPercentage: recipe.saltPercentage || 2.8,
-    yeastPercentage: recipe.yeastPercentage || 0.15,
-    yeastType: recipe.yeastType || 'fresh',
-    oilPercentage: recipe.oilPercentage || 0,
-    sugarPercentage: recipe.sugarPercentage || 0,
-    fermentationRtHours: recipe.fermentationRtHours || 8,
-    fermentationCtHours: recipe.fermentationCtHours || 16,
-    flourId: recipe.flourId || null,
-    flourName: recipe.flourName || 'Klasická mouka',
+    doughId: recipe.doughId || null,
+    doughName: recipe.doughName || null,
+    prepTimeMinutes: recipe.prepTimeMinutes || 15,
+    bakeTemperature: recipe.bakeTemperature || 450,
+    bakeTimeSeconds: recipe.bakeTimeSeconds || 80,
+    ingredients: recipe.ingredients || [],
     instructions: recipe.instructions || [],
     isPreset: false,
   };
@@ -107,14 +100,14 @@ export async function deleteRecipe(id: number): Promise<void> {
   try {
     await fetch(`${API_BASE_URL}/recipes/${id}`, { method: 'DELETE' });
   } catch {
-    // Fallback
+    // ignore
   }
 
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('bakeitbaby_custom_recipes');
     if (stored) {
-      const list: RecipeItem[] = JSON.parse(stored);
-      const filtered = list.filter(r => r.id !== id);
+      const customList: RecipeItem[] = JSON.parse(stored);
+      const filtered = customList.filter(r => r.id !== id);
       localStorage.setItem('bakeitbaby_custom_recipes', JSON.stringify(filtered));
     }
   }

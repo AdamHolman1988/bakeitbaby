@@ -9,7 +9,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('RecipesPage Component', () => {
-  it('renders recipes catalog, filter buttons, and opens preparation steps', async () => {
+  it('renders pizza cookbook, pizza recipes with ingredients and baking info', async () => {
     render(
       <ThemeProvider attribute="class">
         <LocaleProvider>
@@ -19,20 +19,20 @@ describe('RecipesPage Component', () => {
     );
 
     // Title
-    expect(screen.getByText('Recepty na pizzu')).toBeInTheDocument();
+    expect(screen.getByText('Pizza kuchařka & recepty')).toBeInTheDocument();
 
-    // Check pre-seeded recipe titles
-    const avpnTitle = await screen.findByText('Klasická Neapolská Pizza (AVPN)');
-    expect(avpnTitle).toBeInTheDocument();
+    // Check pre-seeded cookbook recipes
+    const margheritaTitle = await screen.findByText('Pizza Margherita Verace D.O.P.');
+    expect(margheritaTitle).toBeInTheDocument();
 
-    const canottoTitle = await screen.findByText('Moderní Pizza Canotto (Vzdušné okraje)');
-    expect(canottoTitle).toBeInTheDocument();
+    const marinaraTitle = await screen.findByText('Pizza Marinara Tradizionale');
+    expect(marinaraTitle).toBeInTheDocument();
 
     // Search filter
     const searchInput = screen.getByPlaceholderText('Hledat recept...');
-    fireEvent.change(searchInput, { target: { value: 'Biga' } });
+    fireEvent.change(searchInput, { target: { value: 'Diavola' } });
 
-    const bigaRecipe = await screen.findByText('100% Biga Neapolská Pizza');
-    expect(bigaRecipe).toBeInTheDocument();
+    const diavola = await screen.findByText("Pizza Diavola con 'Nduja di Spilinga");
+    expect(diavola).toBeInTheDocument();
   });
 });

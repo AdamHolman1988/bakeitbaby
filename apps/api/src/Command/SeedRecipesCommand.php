@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:seed:recipes',
-    description: 'Seeds authentic benchmark pizza recipes into the database'
+    description: 'Seeds authentic pizza cookbook recipes into the database'
 )]
 final class SeedRecipesCommand extends Command
 {
@@ -31,167 +31,174 @@ final class SeedRecipesCommand extends Command
 
         $presets = [
             [
-                'name' => 'Klasická Neapolská Pizza (AVPN)',
+                'name' => 'Pizza Margherita Verace D.O.P.',
                 'pizzaStyle' => 'neapolitan',
-                'prefermentType' => 'direct',
-                'doughBallsCount' => 4,
-                'ballWeightGrams' => 260,
-                'hydrationPercentage' => 65.0,
-                'saltPercentage' => 2.8,
-                'yeastPercentage' => 0.15,
-                'yeastType' => 'fresh',
-                'oilPercentage' => 0.0,
-                'sugarPercentage' => 0.0,
-                'fermentationRtHours' => 8.0,
-                'fermentationCtHours' => 16.0,
-                'description' => 'Oficiální neapolská receptura podle asociace AVPN. Vynikající pružnost, tenký střed a charakteristické leopardí fleky.',
-                'flourName' => 'Caputo Pizzeria Tipo 00 (W 260)',
+                'description' => 'Tradiční neapolská královna. Loupaná rajčata San Marzano D.O.P., čerstvá mozzarella Fior di Latte, lístky bazalky a extra panenský olivový olej.',
+                'doughName' => 'Klasická Neapolská Pizza (AVPN)',
+                'prepTimeMinutes' => 10,
+                'bakeTemperature' => 450,
+                'bakeTimeSeconds' => 75,
+                'ingredients' => [
+                    ['name' => 'Drcená rajčata San Marzano D.O.P. se špetkou mořské soli', 'amount' => '80 g', 'stage' => 'základ'],
+                    ['name' => 'Mozzarella Fior di Latte (nakrájená na proužky)', 'amount' => '90 g', 'stage' => 'před pečením'],
+                    ['name' => 'Čerstvá bazalka', 'amount' => '5 lístků', 'stage' => 'po upečení'],
+                    ['name' => 'Extra panenský olivový olej (EVOO)', 'amount' => '1 lžíce', 'stage' => 'po upečení'],
+                    ['name' => 'Parmezán / Pecorino Romano jemně strouhaný', 'amount' => '10 g', 'stage' => 'před pečením'],
+                ],
                 'instructions' => [
-                    'Rozpusťte sůl ve studené vodě (cca 18°C).',
-                    'Přidejte cca 10 % mouky a promíchejte.',
-                    'Rozdrobte čerstvé droždí a postupně přisypávejte zbylou mouku.',
-                    'Hněťte 15–20 minut, dokud není těsto sametově hladké a elastické.',
-                    'Nechte odpočívat 2 hodiny v bloku při pokojové teplotě přikryté utěrkou.',
-                    'Vytvarujte bochánky (panetti) po 260 g a uložte do kynoucího boxu do lednice na 16 hodin.',
-                    'Vyjměte 4–6 hodin před pečením a nechte dokynout při pokojové teplotě.',
-                    'Pečte v rozehřáté peci (430–480°C) po dobu 60–90 sekund.',
+                    'Roztáhněte těsto od středu ke krajům a vytvořte pravidelný 1–2 cm okraj.',
+                    'Kruhovým pohybem naneste rajčatový základ na střed těsta.',
+                    'Posypte strouhaným parmezánem a rozprostřete okapanou mozzarellu.',
+                    'Zastříkněte pár kapkami olivového oleje a zasaďte do rozpálené pece (450 °C).',
+                    'Pečte 60–80 sekund s jedním až dvěma pootočeními pro rovnoměrné opékání.',
+                    'Ihned po vytažení přidejte lístky čerstvé bazalky a zakápněte čerstvým EVOO.',
                 ],
             ],
             [
-                'name' => 'Moderní Pizza Canotto (Vzdušné okraje)',
+                'name' => 'Pizza Marinara Tradizionale',
+                'pizzaStyle' => 'neapolitan',
+                'description' => 'Nejstarší neapolská pizza námořníků. Bez sýra, s explozí chuti rajčat, plátků česneku a sušeného oregana.',
+                'doughName' => 'Klasická Neapolská Pizza (AVPN)',
+                'prepTimeMinutes' => 8,
+                'bakeTemperature' => 450,
+                'bakeTimeSeconds' => 65,
+                'ingredients' => [
+                    ['name' => 'Rajčata San Marzano D.O.P.', 'amount' => '90 g', 'stage' => 'základ'],
+                    ['name' => 'Čerstvý česnek na velmi tenké plátky', 'amount' => '1–2 stroužky', 'stage' => 'před pečením'],
+                    ['name' => 'Sušené divoké oregano (nejlépe z Kalábrie či Sicílie)', 'amount' => '1 lžička', 'stage' => 'před pečením'],
+                    ['name' => 'Extra panenský olivový olej', 'amount' => '15 ml', 'stage' => 'před i po pečení'],
+                ],
+                'instructions' => [
+                    'Roztáhněte těsto do tenkého středu.',
+                    'Naneste rovnoměrně rajčatový základ.',
+                    'Rozmístěte tenké plátky česneku a posypte oreganem promnutým v dlaních.',
+                    'Bohatě zakápněte olivovým olejem.',
+                    'Pečte v peci 60–75 sekund.',
+                ],
+            ],
+            [
+                'name' => 'Pizza Diavola con \'Nduja di Spilinga',
                 'pizzaStyle' => 'canotto',
-                'prefermentType' => 'direct',
-                'doughBallsCount' => 4,
-                'ballWeightGrams' => 280,
-                'hydrationPercentage' => 72.0,
-                'saltPercentage' => 2.6,
-                'yeastPercentage' => 0.12,
-                'yeastType' => 'fresh',
-                'oilPercentage' => 1.5,
-                'sugarPercentage' => 0.0,
-                'fermentationRtHours' => 6.0,
-                'fermentationCtHours' => 24.0,
-                'description' => 'Moderní styl s nafouknutými a křupavými bublinami v okraji (canotto = záchranný člun). Vyšší hydratace a delší chladové zrání.',
-                'flourName' => 'Caputo Nuvola Tipo 0 (W 270)',
+                'description' => 'Pikantní moderní pizza s nadýchaným rantlem. Salame Napoli Piccante, kalábrijská \'Nduja a kapky medu s chilli.',
+                'doughName' => 'Moderní Pizza Canotto (Vzdušné okraje)',
+                'prepTimeMinutes' => 12,
+                'bakeTemperature' => 440,
+                'bakeTimeSeconds' => 80,
+                'ingredients' => [
+                    ['name' => 'Rajčatové sugo San Marzano', 'amount' => '80 g', 'stage' => 'základ'],
+                    ['name' => 'Mozzarella di Bufala nebo Fior di Latte', 'amount' => '85 g', 'stage' => 'před pečením'],
+                    ['name' => 'Salame Piccante / Ventricina', 'amount' => '40 g', 'stage' => 'před pečením'],
+                    ['name' => '\'Nduja di Spilinga', 'amount' => '25 g', 'stage' => 'před pečením'],
+                    ['name' => 'Chilli med (Hot Honey)', 'amount' => '1 lžička', 'stage' => 'po upečení'],
+                ],
                 'instructions' => [
-                    'Začněte autolýzou: smíchejte celou mouku s 60 % vody a nechte 30 minut stát.',
-                    'Přidejte droždí a zbývající vodu postupně (bassinage) během hnětení.',
-                    'Na závěr přidejte sůl a olivový olej pro lepší elasticitu.',
-                    'Proveďte 3 série překladů (stretch & fold) po 20 minutách.',
-                    'Uložte do chladu (4°C) na 24 hodin.',
-                    'Navažte 280g bochánky a nechte 5 hodin v pokojové teplotě.',
-                    'Při roztahování vytlačujte vzduch jemně ze středu do okrajů, nikdy nemačkejte rantl!',
+                    'Roztáhněte těsto šetrně, abyste zachovali vzduch v okraji pro efekt Canotto.',
+                    'Naneste sugo a mozzarellu.',
+                    'Rozložte plátky pikantního salámu a kousky \'nduji.',
+                    'Pečte 75–85 sekund při 440 °C.',
+                    'Při podávání zakápněte pikantním medem pro dokonalý sweet & spicy kontrast.',
                 ],
             ],
             [
-                'name' => 'Římská pizza na plech (Pizza in Teglia)',
-                'pizzaStyle' => 'roman_crispy',
-                'prefermentType' => 'direct',
-                'doughBallsCount' => 2,
-                'ballWeightGrams' => 550,
-                'hydrationPercentage' => 78.0,
-                'saltPercentage' => 2.5,
-                'yeastPercentage' => 0.20,
-                'yeastType' => 'fresh',
-                'oilPercentage' => 3.0,
-                'sugarPercentage' => 1.0,
-                'fermentationRtHours' => 4.0,
-                'fermentationCtHours' => 48.0,
-                'description' => 'Lehká, extrémně křupavá a vysoká pizza pečená v plechu v domácí troubě na maximum (250–300°C).',
-                'flourName' => 'Caputo Manitoba Oro (W 380)',
+                'name' => 'Mortadella, Pistacchio & Burrata Pugliese',
+                'pizzaStyle' => 'canotto',
+                'description' => 'Moderní italská senzace (Pizza Bianca). Krémová burrata, plátky jemné mortadelly Bologna I.G.P. a křupavé pistácie.',
+                'doughName' => '100% Biga Neapolské těsto',
+                'prepTimeMinutes' => 15,
+                'bakeTemperature' => 430,
+                'bakeTimeSeconds' => 80,
+                'ingredients' => [
+                    ['name' => 'Fior di latte (podklad pro upečení)', 'amount' => '60 g', 'stage' => 'před pečením'],
+                    ['name' => 'Mortadella Bologna I.G.P. na tenoučké plátky', 'amount' => '70 g', 'stage' => 'po upečení'],
+                    ['name' => 'Čerstvá Burrata di Puglia', 'amount' => '1 ks (125 g)', 'stage' => 'po upečení'],
+                    ['name' => 'Pistáciové pesto nebo drcené pražené pistácie', 'amount' => '25 g', 'stage' => 'po upečení'],
+                    ['name' => 'Lístky čerstvé bazalky a kapka citrónové kůry', 'amount' => 'dle chuti', 'stage' => 'po upečení'],
+                ],
                 'instructions' => [
-                    'Použijte silnou mouku Manitoba schopnou absorbovat 78–80 % vody.',
-                    'Hněťte pomalu, vodu přidávejte po částech.',
-                    'Olej a sůl přidejte až po vyvinutí silné lepkové sítě.',
-                    'Laminujte těsto na pomoučeném stole a uložte na 48 hodin do lednice.',
-                    'V den pečení vyndejte, rozprostřete do naolejovaného plechu a nechte 3 hodiny kynout.',
-                    'Pečte na spodním roštu trouby na 250°C cca 10 minut, poté dopečte na středu.',
+                    'Roztáhněte těsto a poklaďte pouze malou vrstvou fior di latte na bílý základ.',
+                    'Upečte korpus do zlatova a nafouknutí okrajů (cca 70–85 s).',
+                    'Ihned po vytažení na horkou pizzu navrstvěte nadýchanou mortadellu.',
+                    'Doprostřed umístěte natrženou burratu s krémovým vnitřkem.',
+                    'Zasypte pistáciemi, zakápněte pistáciovým pestem a ozdobte bazalkou.',
                 ],
             ],
             [
-                'name' => '100% Biga Neapolská Pizza',
-                'pizzaStyle' => 'biga',
-                'prefermentType' => 'biga',
-                'doughBallsCount' => 6,
-                'ballWeightGrams' => 260,
-                'hydrationPercentage' => 68.0,
-                'saltPercentage' => 2.7,
-                'yeastPercentage' => 0.10,
-                'yeastType' => 'fresh',
-                'oilPercentage' => 0.0,
-                'sugarPercentage' => 0.5,
-                'fermentationRtHours' => 8.0,
-                'fermentationCtHours' => 24.0,
-                'description' => 'Těsto s pevným italským prefermentem (Biga 44–45% hydratace). Výsledkem je neuvěřitelná vůně, lehkost a dokonalé natrávení.',
-                'flourName' => 'Caputo Cuoco + Manitoba (W 340)',
+                'name' => 'Quattro Formaggi Cremosa',
+                'pizzaStyle' => 'canotto',
+                'description' => 'Bohatá sýrová kompozice se sladkokyselým nádechem gorgonzoly a parmazánu.',
+                'doughName' => 'Klasická Neapolská Pizza (AVPN)',
+                'prepTimeMinutes' => 10,
+                'bakeTemperature' => 430,
+                'bakeTimeSeconds' => 80,
+                'ingredients' => [
+                    ['name' => 'Fior di Latte', 'amount' => '70 g', 'stage' => 'před pečením'],
+                    ['name' => 'Gorgonzola D.O.P. Dolce', 'amount' => '40 g', 'stage' => 'před pečením'],
+                    ['name' => 'Fontina nebo Provolone Valpadana', 'amount' => '30 g', 'stage' => 'před pečením'],
+                    ['name' => 'Parmigiano Reggiano 24 měsíců', 'amount' => '20 g', 'stage' => 'po upečení'],
+                ],
                 'instructions' => [
-                    'Den 1: Připravte Bigu ze 100 % mouky, 45 % vody a 1 % droždí. Těsto pouze spojte, nehněťte dohladka.',
-                    'Nechte Bigu fermentovat 16–18 hodin při 16–18°C.',
-                    'Den 2: Nakrájejte Bigu do mísy, přidejte zbytek vody na 68 % celkové hydratace, slad a sůl.',
-                    'Hněťte dohladka, dokud se těsto neuzavře.',
-                    'Bochánky stočte a nechte dokynout 3–4 hodiny před pečením.',
+                    'Rozprostřete sýry rovnoměrně na roztažené těsto.',
+                    'Upečte do roztečení a jemného zhnědnutí sýrů.',
+                    'Ihned posypte jemně nastrouhaným parmazánem a zakápněte olivovým olejem.',
                 ],
             ],
             [
-                'name' => 'Kvasová Pizza (Lievito Madre)',
-                'pizzaStyle' => 'neapolitan',
-                'prefermentType' => 'sourdough',
-                'doughBallsCount' => 4,
-                'ballWeightGrams' => 260,
-                'hydrationPercentage' => 66.0,
-                'saltPercentage' => 2.8,
-                'yeastPercentage' => 15.0,
-                'yeastType' => 'sourdough',
-                'oilPercentage' => 0.0,
-                'sugarPercentage' => 0.0,
-                'fermentationRtHours' => 10.0,
-                'fermentationCtHours' => 24.0,
-                'description' => 'Pizza kynutá výhradně přírodním kvasem (Lievito Madre nebo pšeničný aktivní rozkvas). Výjimečná chuťová hloubka a stravitelnost.',
-                'flourName' => 'Caputo Cuoco Tipo 00 (W 300)',
+                'name' => 'Bezlepková Pizza Margherita (Caputo Fioreglut)',
+                'pizzaStyle' => 'glutenfree',
+                'description' => '100% bezlepková neapolská pizza s nepřekonatelnou chutí a křupavým spodkem.',
+                'doughName' => 'Bezlepkové těsto (Gluten-Free)',
+                'prepTimeMinutes' => 10,
+                'bakeTemperature' => 400,
+                'bakeTimeSeconds' => 120,
+                'ingredients' => [
+                    ['name' => 'Sugo San Marzano D.O.P.', 'amount' => '80 g', 'stage' => 'základ'],
+                    ['name' => 'Mozzarella bez laktózy nebo klasické Fior di Latte', 'amount' => '85 g', 'stage' => 'před pečením'],
+                    ['name' => 'Čerstvá bazalka', 'amount' => '4 lístky', 'stage' => 'po upečení'],
+                    ['name' => 'Extra panenský olivový olej', 'amount' => '1 lžíce', 'stage' => 'po upečení'],
+                ],
                 'instructions' => [
-                    'Použijte kvas na vrcholu aktivity (zdvojnásobený objem po nakrmení).',
-                    'Kvas rozmíchejte ve vodě do mléčné pěny.',
-                    'Přidejte mouku, po zapracování sůl.',
-                    'Odpočinek 30 minut, následně série překladů.',
-                    'Zrání v chladu 24 hodin, vytažení a dokynutí bochánků 5 hodin před pečením.',
+                    'Bezlepkový bochánek roztahujte na papíře na pečení nebo podsypané bezlepkovou moukou.',
+                    'Naneste sugo a mozzarellu.',
+                    'Pečte v peci při 380–420 °C po dobu cca 90–120 s (bezlepkové těsto potřebuje mírně delší propečení).',
+                    'Dozdobte bazalkou a olejem.',
                 ],
             ],
         ];
 
         $count = 0;
-        foreach ($presets as $p) {
-            $existing = $repo->findOneBy(['name' => $p['name']]);
+        foreach ($presets as $item) {
+            $existing = $repo->findOneBy(['name' => $item['name']]);
             if ($existing instanceof Recipe) {
-                continue;
+                $existing->setPizzaStyle($item['pizzaStyle']);
+                $existing->setDescription($item['description']);
+                $existing->setDoughName($item['doughName']);
+                $existing->setPrepTimeMinutes($item['prepTimeMinutes']);
+                $existing->setBakeTemperature($item['bakeTemperature']);
+                $existing->setBakeTimeSeconds($item['bakeTimeSeconds']);
+                $existing->setIngredients($item['ingredients']);
+                $existing->setInstructions($item['instructions']);
+                $existing->setIsPreset(true);
+            } else {
+                $recipe = new Recipe(
+                    name: $item['name'],
+                    pizzaStyle: $item['pizzaStyle'],
+                    description: $item['description'],
+                    doughName: $item['doughName'],
+                    prepTimeMinutes: $item['prepTimeMinutes'],
+                    bakeTemperature: $item['bakeTemperature'],
+                    bakeTimeSeconds: $item['bakeTimeSeconds'],
+                    ingredients: $item['ingredients'],
+                    instructions: $item['instructions'],
+                    isPreset: true
+                );
+                $this->entityManager->persist($recipe);
             }
-
-            $recipe = new Recipe(
-                name: $p['name'],
-                pizzaStyle: $p['pizzaStyle'],
-                prefermentType: $p['prefermentType'],
-                doughBallsCount: $p['doughBallsCount'],
-                ballWeightGrams: $p['ballWeightGrams'],
-                hydrationPercentage: $p['hydrationPercentage'],
-                saltPercentage: $p['saltPercentage'],
-                yeastPercentage: $p['yeastPercentage'],
-                yeastType: $p['yeastType'],
-                oilPercentage: $p['oilPercentage'],
-                sugarPercentage: $p['sugarPercentage'],
-                fermentationRtHours: $p['fermentationRtHours'],
-                fermentationCtHours: $p['fermentationCtHours'],
-                description: $p['description'],
-                flourName: $p['flourName'],
-                instructions: $p['instructions'],
-                isPreset: true
-            );
-
-            $this->entityManager->persist($recipe);
             $count++;
         }
 
         $this->entityManager->flush();
-        $io->success(sprintf('Seeded %d recipe presets successfully.', $count));
 
+        $io->success(sprintf('Seeded/Updated %d pizza cookbook recipes successfully.', $count));
         return Command::SUCCESS;
     }
 }
