@@ -1,0 +1,22 @@
+{
+  "name": "bakeitbaby",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Precision pizza dough calculator, fermentation planner & flour workbench",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:up": "docker compose up -d database",
+    "db:down": "docker compose down",
+    "db:psql": "PGPASSWORD=bakeitbaby psql -h 127.0.0.1 -p 5435 -U bakeitbaby -d bakeitbaby"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.4"
+  },
+  "packageManager": "npm@11.14.1"
+}

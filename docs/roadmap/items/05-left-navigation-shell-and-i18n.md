@@ -1,8 +1,9 @@
 # Item #05: Left-Sided Navigation Shell and Bilingual i18n (CZ/EN)
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P0 (UX Foundation)
 - ADR: [ADR 0003](../../adr/0003-navigation-and-layout-hierarchy.md), [ADR 0005](../../adr/0005-internationalization-strategy.md)
+- Verified: Left sidebar with strict order (1. Calculator, 2. Recipes, 3. Flours); wide canvas layout; mobile drawer; cs/en translations; Vitest test passing.
 
 ## Summary
 

@@ -1,8 +1,9 @@
 # Item #03: Frontend Scaffold (Next.js 16, Turbopack, TypeScript)
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P0 (Foundation)
 - ADR: [ADR 0001](../../adr/0001-architecture-stack-and-workspace.md), [ADR 0002](../../adr/0002-design-tokens-and-typography.md)
+- Verified: Next.js 16 App Router with Turbopack, React 19, TypeScript, Vitest, Outfit & Plus Jakarta Sans configured and building cleanly.
 
 ## Summary
 

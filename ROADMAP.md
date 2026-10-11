@@ -43,11 +43,11 @@ flowchart TD
 
 | ID | Status | Priority | Title | ADR | Item Spec |
 |---|:---:|:---:|---|---|---|
-| `#01` | 🔲 todo | P0 | Monorepo Foundation & Containerized Database (Port 5435) | [ADR 0001](docs/adr/0001-architecture-stack-and-workspace.md) | [`#01`](docs/roadmap/items/01-monorepo-foundation-and-database.md) |
-| `#02` | 🔲 todo | P0 | Backend API Scaffold (Symfony 7.4 & Doctrine ORM) | [ADR 0001](docs/adr/0001-architecture-stack-and-workspace.md), [ADR 0006](docs/adr/0006-postgresql-data-model-and-persistence.md) | [`#02`](docs/roadmap/items/02-backend-api-scaffold.md) |
-| `#03` | 🔲 todo | P0 | Frontend Scaffold (Next.js 16, Turbopack, TypeScript, Vitest) | [ADR 0001](docs/adr/0001-architecture-stack-and-workspace.md), [ADR 0002](docs/adr/0002-design-tokens-and-typography.md) | [`#03`](docs/roadmap/items/03-frontend-scaffold-and-tooling.md) |
-| `#04` | 🔲 todo | P0 | Design System & Theme Tokens (Vibrant Light & Rustic Dark) | [ADR 0002](docs/adr/0002-design-tokens-and-typography.md) | [`#04`](docs/roadmap/items/04-design-system-and-theme-tokens.md) |
-| `#05` | 🔲 todo | P0 | Left Navigation Shell & Bilingual i18n (CZ/EN) | [ADR 0003](docs/adr/0003-navigation-and-layout-hierarchy.md), [ADR 0005](docs/adr/0005-internationalization-strategy.md) | [`#05`](docs/roadmap/items/05-left-navigation-shell-and-i18n.md) |
+| `#01` | ✅ shipped | P0 | Monorepo Foundation & Containerized Database (Port 5435) | [ADR 0001](docs/adr/0001-architecture-stack-and-workspace.md) | [`#01`](docs/roadmap/items/01-monorepo-foundation-and-database.md) |
+| `#02` | ✅ shipped | P0 | Backend API Scaffold (Symfony 7.4 & Doctrine ORM) | [ADR 0001](docs/adr/0001-architecture-stack-and-workspace.md), [ADR 0006](docs/adr/0006-postgresql-data-model-and-persistence.md) | [`#02`](docs/roadmap/items/02-backend-api-scaffold.md) |
+| `#03` | ✅ shipped | P0 | Frontend Scaffold (Next.js 16, Turbopack, TypeScript, Vitest) | [ADR 0001](docs/adr/0001-architecture-stack-and-workspace.md), [ADR 0002](docs/adr/0002-design-tokens-and-typography.md) | [`#03`](docs/roadmap/items/03-frontend-scaffold-and-tooling.md) |
+| `#04` | ✅ shipped | P0 | Design System & Theme Tokens (Vibrant Light & Rustic Dark) | [ADR 0002](docs/adr/0002-design-tokens-and-typography.md) | [`#04`](docs/roadmap/items/04-design-system-and-theme-tokens.md) |
+| `#05` | ✅ shipped | P0 | Left Navigation Shell & Bilingual i18n (CZ/EN) | [ADR 0003](docs/adr/0003-navigation-and-layout-hierarchy.md), [ADR 0005](docs/adr/0005-internationalization-strategy.md) | [`#05`](docs/roadmap/items/05-left-navigation-shell-and-i18n.md) |
 | `#06` | 🔲 todo | P1 | Flours Module (Database, Seed Data, API & Management UI) | [ADR 0004](docs/adr/0004-dough-math-and-fermentation-engine.md), [ADR 0006](docs/adr/0006-postgresql-data-model-and-persistence.md) | [`#06`](docs/roadmap/items/06-flours-module-crud-and-strength-table.md) |
 | `#07` | 🔲 todo | P1 | Pizza Dough Calculator & W-Strength Fermentation Engine | [ADR 0004](docs/adr/0004-dough-math-and-fermentation-engine.md) | [`#07`](docs/roadmap/items/07-pizza-dough-calculator-and-fermentation-engine.md) |
 | `#08` | 🔲 todo | P1 | Recipes Module (Database, API & Management UI) | [ADR 0006](docs/adr/0006-postgresql-data-model-and-persistence.md) | [`#08`](docs/roadmap/items/08-recipes-module-crud.md) |

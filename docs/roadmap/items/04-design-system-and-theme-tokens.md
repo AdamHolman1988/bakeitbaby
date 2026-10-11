@@ -1,8 +1,9 @@
 # Item #04: Design System and Theme Tokens (Vibrant Light & Rustic Dark)
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P0 (UI Foundation)
 - ADR: [ADR 0002](../../adr/0002-design-tokens-and-typography.md)
+- Verified: globals.css semantic tokens for Vibrant Light and Rustic Dark; next-themes ThemeProvider and ThemeToggle implemented and tested.
 
 ## Summary
 

@@ -1,8 +1,9 @@
 # Item #02: Backend API Scaffold (Symfony 7.4 & Doctrine)
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P0 (Foundation)
 - ADR: [ADR 0001](../../adr/0001-architecture-stack-and-workspace.md), [ADR 0006](../../adr/0006-postgresql-data-model-and-persistence.md)
+- Verified: Symfony 7.4 installed with Doctrine ORM; connects to PostgreSQL on 5435; /api/health endpoint and test passing; PHPStan level 8 passing.
 
 ## Summary
 

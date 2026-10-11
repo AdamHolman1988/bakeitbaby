@@ -1,8 +1,9 @@
 # Item #01: Monorepo Foundation and Containerized Database
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P0 (Foundation)
 - ADR: [ADR 0001](../../adr/0001-architecture-stack-and-workspace.md)
+- Verified: PostgreSQL 17 container healthy on 127.0.0.1:5435; root npm workspaces + Turborepo 2.4.4 configured.
 
 ## Summary
 
