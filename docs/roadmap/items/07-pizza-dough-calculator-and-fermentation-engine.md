@@ -1,8 +1,9 @@
 # Item #07: Pizza Dough Calculator and W-Strength Fermentation Engine
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P1 (Core Feature)
 - ADR: [ADR 0004](../../adr/0004-dough-math-and-fermentation-engine.md)
+- Verified: Calculator domain math implemented in TS and PHP with unit tests; interactive reactive UI with flour W-strength validation, presets, fermentation schedules, and baker's percentages.
 
 ## Summary
 

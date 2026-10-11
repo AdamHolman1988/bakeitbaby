@@ -3,3 +3,7 @@ parameters:
     paths:
         - src/
         - tests/
+    ignoreErrors:
+        -
+            message: '#Property .+::\$id \(int\|null\) is never assigned int#'
+            path: src/Entity/*

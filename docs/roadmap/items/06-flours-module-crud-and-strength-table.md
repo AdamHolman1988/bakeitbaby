@@ -1,8 +1,9 @@
 # Item #06: Flours Module (Database, Seed Data, API & Management UI)
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P1 (Core Feature)
 - ADR: [ADR 0004](../../adr/0004-dough-math-and-fermentation-engine.md), [ADR 0006](../../adr/0006-postgresql-data-model-and-persistence.md)
+- Verified: PostgreSQL flours schema and migration; 10 seeded flours; FlourController API with search/filter/CRUD; frontend flours page with W strength reference; Vitest & PHPUnit tests passing.
 
 ## Summary
 

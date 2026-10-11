@@ -1,8 +1,9 @@
 # Item #09: CI/CD Pipeline and Automated Testing Matrix
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P1 (Quality & DevOps)
 - ADR: [ADR 0007](../../adr/0007-testing-strategy-and-ci-cd.md)
+- Verified: GitHub Actions .github/workflows/ci.yml created; ./scripts/test-all.sh unified runner executes database check, PHPStan level 8, PHPUnit (9 tests, 51 assertions), Vitest (5 test files, 7 tests), and Next.js Turbopack build cleanly.
 
 ## Summary
 

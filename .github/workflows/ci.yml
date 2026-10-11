@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend CI (PHP 8.4 + Symfony)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: bakeitbaby_test
+          POSTGRES_USER: bakeitbaby
+          POSTGRES_PASSWORD: bakeitbaby
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: apps/api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, pdo_pgsql, pgsql, mbstring
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: apps/api/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('apps/api/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Run PHPStan static analysis
+        run: vendor/bin/phpstan analyse --no-progress
+
+      - name: Run Doctrine Migrations & Seeds
+        env:
+          DATABASE_URL: "postgresql://bakeitbaby:bakeitbaby@127.0.0.1:5435/bakeitbaby_test?serverVersion=17&charset=utf8"
+        run: |
+          php bin/console doctrine:migrations:migrate --no-interaction --env=test
+          php bin/console app:seed:flours --env=test
+          php bin/console app:seed:recipes --env=test
+
+      - name: Run PHPUnit test suite
+        env:
+          DATABASE_URL: "postgresql://bakeitbaby:bakeitbaby@127.0.0.1:5435/bakeitbaby_test?serverVersion=17&charset=utf8"
+        run: php bin/phpunit
+
+  frontend:
+    name: Frontend CI (Next.js + TypeScript + Vitest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        working-directory: apps/web
+        run: npx tsc --noEmit
+
+      - name: Run Vitest test suite
+        working-directory: apps/web
+        run: npm test
+
+      - name: Build Next.js application
+        working-directory: apps/web
+        run: npm run build

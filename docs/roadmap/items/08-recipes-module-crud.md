@@ -1,8 +1,9 @@
 # Item #08: Recipes Module (Database, API & Management UI)
 
-- Status: 🔲 todo
+- Status: ✅ shipped
 - Priority: P1 (Core Feature)
 - ADR: [ADR 0006](../../adr/0006-postgresql-data-model-and-persistence.md)
+- Verified: PostgreSQL recipes schema and migration; 5 seeded authentic recipes (Neapolitan, Canotto, Roman, Biga, Sourdough); RecipeController API with CRUD; frontend recipes UI with calculator integration; Vitest & PHPUnit tests passing.
 
 ## Summary
 
