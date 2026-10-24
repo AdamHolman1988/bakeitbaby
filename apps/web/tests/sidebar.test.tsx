@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Sidebar } from '@/components/sidebar';
 import { LocaleProvider } from '@/context/locale-context';
+import { SettingsProvider } from '@/context/settings-context';
 import { ThemeProvider } from '@/components/theme-provider';
 
 vi.mock('next/navigation', () => ({
@@ -13,7 +14,9 @@ describe('Sidebar Navigation', () => {
     render(
       <ThemeProvider attribute="class">
         <LocaleProvider>
-          <Sidebar />
+          <SettingsProvider>
+            <Sidebar />
+          </SettingsProvider>
         </LocaleProvider>
       </ThemeProvider>
     );

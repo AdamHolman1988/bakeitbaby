@@ -4,9 +4,10 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAppLocale } from '@/context/locale-context';
-import { Calculator, ChefHat, BookOpen, Wheat, Menu, X, Flame } from 'lucide-react';
+import { Calculator, ChefHat, BookOpen, Wheat, Menu, X } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { SettingsModal } from '@/components/settings-modal';
 
 export function Sidebar() {
   const { t } = useAppLocale();
@@ -44,20 +45,21 @@ export function Sidebar() {
     <>
       {/* Mobile Top Header */}
       <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-[var(--color-surface)] border-b border-[var(--color-border)] shadow-xs">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-contrast)] shadow-xs">
-            <Flame className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="font-extrabold text-lg tracking-tight font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
-              BakeItBaby
-            </span>
-          </div>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <img
+            src="/pizza.svg"
+            alt="BakeItBaby Pizza"
+            className="w-8 h-8 object-contain select-none drop-shadow-sm transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3"
+          />
+          <span className="font-extrabold text-xl tracking-tight font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
+            BakeIt<span className="text-[var(--color-primary)]">Baby</span>
+          </span>
         </Link>
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <LanguageSwitcher />
+          <SettingsModal />
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -85,18 +87,15 @@ export function Sidebar() {
       >
         {/* Brand Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--color-border)]">
-          <Link href="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-[var(--color-primary)] text-[var(--color-primary-contrast)] shadow-xs">
-              <Flame className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="font-extrabold text-xl tracking-tight font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
-                BakeItBaby
-              </div>
-              <div className="text-[11px] font-medium text-[var(--color-text-muted)] tracking-wider uppercase">
-                {t('nav.subtitle')}
-              </div>
-            </div>
+          <Link href="/" className="flex items-center gap-3 group" onClick={() => setMobileOpen(false)}>
+            <img
+              src="/pizza.svg"
+              alt="BakeItBaby Pizza"
+              className="w-10 h-10 object-contain select-none drop-shadow-sm transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3"
+            />
+            <span className="font-black text-2xl tracking-tight font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
+              BakeIt<span className="text-[var(--color-primary)]">Baby</span>
+            </span>
           </Link>
           <button
             type="button"
@@ -134,6 +133,7 @@ export function Sidebar() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <LanguageSwitcher />
+            <SettingsModal />
           </div>
           <span className="text-[11px] font-mono text-[var(--color-text-subtle)]">v1.2.0</span>
         </div>

@@ -33,6 +33,7 @@ export default function FloursPage() {
   const [formNotes, setFormNotes] = React.useState('');
   const [formShowInCalculator, setFormShowInCalculator] = React.useState(true);
   const [formIsGlutenFree, setFormIsGlutenFree] = React.useState(false);
+  const [formRecommendedStyles, setFormRecommendedStyles] = React.useState<string[]>([]);
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
@@ -60,6 +61,7 @@ export default function FloursPage() {
     setFormNotes('');
     setFormShowInCalculator(true);
     setFormIsGlutenFree(false);
+    setFormRecommendedStyles([]);
     setModalOpen(true);
   };
 
@@ -78,6 +80,7 @@ export default function FloursPage() {
     setFormNotes(flour.usageNotes || '');
     setFormShowInCalculator(flour.showInCalculator !== false);
     setFormIsGlutenFree(flour.isGlutenFree || false);
+    setFormRecommendedStyles(flour.recommendedForStyles || []);
     setModalOpen(true);
   };
 
@@ -112,6 +115,7 @@ export default function FloursPage() {
       usageNotes: formNotes,
       showInCalculator: formShowInCalculator,
       isGlutenFree: formIsGlutenFree,
+      recommendedForStyles: formRecommendedStyles,
     };
 
     await saveFlour(payload);
@@ -286,6 +290,18 @@ export default function FloursPage() {
                           <span className="block text-xs font-normal text-[var(--color-text-muted)]">
                             {flour.brand}
                           </span>
+                        )}
+                        {flour.recommendedForStyles && flour.recommendedForStyles.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {flour.recommendedForStyles.map(st => (
+                              <span
+                                key={st}
+                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
+                              >
+                                ⭐ {st === 'neapolitan' ? 'Neapol (AVPN)' : st === 'contemporary' ? 'Canotto' : st === 'roman_pan' ? 'Teglia' : st === 'gluten_free' ? 'Bezlepková' : 'Rychlá'}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
                     </td>
@@ -637,6 +653,41 @@ export default function FloursPage() {
                   placeholder="Popis, doporučení, vhodné receptury..."
                   className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[var(--color-text-main)] mb-1.5">
+                  ⭐ Top doporučená mouka pro pizza styly:
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { id: 'neapolitan', label: '🍕 Klasická Neapol (AVPN)' },
+                    { id: 'contemporary', label: '☁️ Contemporary Canotto' },
+                    { id: 'roman_pan', label: '🥖 Římská Teglia' },
+                    { id: 'gluten_free', label: '🌾 Bezlepková' },
+                    { id: 'quick_direct', label: '⚡ Rychlá na dnes' },
+                  ].map(style => {
+                    const active = formRecommendedStyles.includes(style.id);
+                    return (
+                      <button
+                        key={style.id}
+                        type="button"
+                        onClick={() => {
+                          setFormRecommendedStyles(prev =>
+                            active ? prev.filter(s => s !== style.id) : [...prev, style.id]
+                          );
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${
+                          active
+                            ? 'bg-[var(--color-primary)] text-white border-transparent shadow-xs'
+                            : 'bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]'
+                        }`}
+                      >
+                        {style.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Checkboxes: inCalculator & isGlutenFree */}

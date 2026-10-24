@@ -4,6 +4,7 @@ export type DoughMethod = 'direct' | 'biga' | 'poolish';
 export interface DoughInput {
   method?: DoughMethod; // default 'direct'
   prefermentPercentage?: number; // e.g. 100 for 100% biga, 30 for 30% poolish
+  bigaHydrationPercentage?: number; // default 50% (range 45–60%)
   pizzasCount: number;
   ballWeightGrams: number;
   hydrationPercentage: number;
@@ -145,8 +146,9 @@ export function calculateDough(input: DoughInput): DoughCalculationResult {
 
   if (method === 'biga') {
     const prefPct = input.prefermentPercentage ?? 100; // default 100% biga
+    const bigaHydr = Math.max(40, Math.min(70, input.bigaHydrationPercentage ?? 50)); // default 50%
     const bigaFlour = Math.round((flourGrams * (prefPct / 100)) * 10) / 10;
-    const bigaWater = Math.round((bigaFlour * 0.45) * 10) / 10; // 45% hydration standard for Biga
+    const bigaWater = Math.round(((bigaFlour * bigaHydr) / 100) * 10) / 10;
     const bigaYeast = Math.round((bigaFlour * 0.01 * YEAST_RATIOS[input.yeastType]) * 100) / 100;
 
     const remFlour = Math.max(0, Math.round((flourGrams - bigaFlour) * 10) / 10);
@@ -156,11 +158,11 @@ export function calculateDough(input: DoughInput): DoughCalculationResult {
       method: 'biga',
       prefermentPercentage: prefPct,
       phase1: {
-        title: `Fáze 1: Biga (${prefPct} % mouky)`,
+        title: `Fáze 1: Biga (${prefPct} % mouky, ${bigaHydr} % hydr.)`,
         flourGrams: bigaFlour,
         waterGrams: bigaWater,
         yeastGrams: bigaYeast,
-        hydrationPercentage: 45,
+        hydrationPercentage: bigaHydr,
         fermentationSchedule: '1 hodina pokojová teplota (18–20 °C) + 16–24 hodin v lednici (4–5 °C) nebo vinotéce (16–18 °C)',
         instructions: 'Nerozvíjejte lepek! Mouku pouze zlehka promíchejte s vodou a droždím, aby vznikly hrudkovité, vzdušné kousky bez suché mouky.',
       },

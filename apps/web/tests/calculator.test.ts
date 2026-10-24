@@ -72,13 +72,30 @@ describe('Dough Calculator Domain Math', () => {
 
     expect(result.preferment).toBeDefined();
     expect(result.preferment?.method).toBe('biga');
-    expect(result.preferment?.phase1.hydrationPercentage).toBe(45);
+    expect(result.preferment?.phase1.hydrationPercentage).toBe(50);
     // In 100% biga, all flour is in Phase 1
     expect(result.preferment?.phase1.flourGrams).toBe(result.ingredients.flourGrams);
     expect(result.preferment?.phase2.remainingFlourGrams).toBe(0);
-    // Phase 2 contains remaining water to reach 70% total hydration
+    // Phase 2 contains remaining water to reach 70% total hydration (70% - 50% = 20% water in Phase 2)
     expect(result.preferment?.phase2.remainingWaterGrams).toBeGreaterThan(100);
     expect(result.preferment?.phase2.saltGrams).toBe(result.ingredients.saltGrams);
+  });
+
+  it('supports custom Biga hydration between 45% and 60%', () => {
+    const result = calculateDough({
+      method: 'biga',
+      prefermentPercentage: 70,
+      bigaHydrationPercentage: 55,
+      pizzasCount: 4,
+      ballWeightGrams: 275,
+      hydrationPercentage: 75,
+      yeastType: 'fresh',
+      saltPercentage: 2.8,
+    });
+
+    expect(result.preferment?.phase1.hydrationPercentage).toBe(55);
+    expect(result.preferment?.phase1.flourGrams).toBeCloseTo(result.ingredients.flourGrams * 0.7, 0);
+    expect(result.preferment?.phase1.waterGrams).toBeCloseTo((result.preferment?.phase1.flourGrams ?? 0) * 0.55, 0);
   });
 
   it('calculates 30% Poolish two-phase breakdown correctly', () => {

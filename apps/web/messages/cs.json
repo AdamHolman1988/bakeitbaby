@@ -9,16 +9,19 @@
   "calculator": {
     "title": "Kalkulátor pizza těsta",
     "subtitle": "Přesný výpočet ingrediencí, hydratace a prefermentů (Přímé, Biga, Poolish).",
-    "method": "Metoda vedení těsta",
+    "method": "Metoda přípravy těsta",
     "methods": {
       "direct": "Přímé těsto",
       "directDesc": "Všechny suroviny hněteny najednou",
       "biga": "Biga",
-      "bigaDesc": "Tuhý preferment (45 % hydr.) pro lehkost a vzdušnost",
+      "bigaDesc": "Tuhý preferment (45–60 % hydr.) pro lehkost a vzdušnost",
       "poolish": "Poolish",
       "poolishDesc": "Tekutý preferment (1:1) pro tažnost a křupavost"
     },
     "prefermentPct": "Podíl prefermentu z celkové mouky",
+    "prefermentCustom": "Vlastní podíl prefermentu (%)",
+    "bigaHydration": "Hydratace bigy (%)",
+    "bigaHydrationDesc": "Standardně 50 % (rozsah 45–60 % dle savosti a stylu)",
     "flourSelect": "Výběr mouky",
     "topRecommended": "Top doporučené pro tento styl",
     "flourCustom": "Vlastní parametry mouky",
@@ -157,5 +160,28 @@
     "hours": "hod",
     "grams": "g",
     "pieces": "ks"
+  },
+  "baking": {
+    "title": "Typ trouby a pečení",
+    "homeOven": "Domácí trouba (max 250 °C)",
+    "homeOvenDesc": "Pečení 6–8 min na pizza kameni / oceli. Doporučeno 1–2 % olivového oleje a 1 % sladu/cukru do těsta.",
+    "pizzaOven": "Dedikovaná pizza trouba (400–450 °C)",
+    "pizzaOvenDesc": "Elektrická nebo plynová pec (Ooni, Roccbox, Effeuno). Pečení 90–120 s. Bez tuku a cukru.",
+    "woodOven": "Pec na dřevo / AVPN Verace (485 °C)",
+    "woodOvenDesc": "Oficiální AVPN standard: klenba ~485 °C, dno 380–430 °C. Pečení 60–90 s přímo na kameni (biscotto di Sorrento).",
+    "temperature": "Teplota pečení",
+    "bakeTime": "Čas pečení",
+    "seconds": "s",
+    "minutes": "min"
+  },
+  "settings": {
+    "title": "Nastavení jednotek & parametrů",
+    "tempUnit": "Jednotka teploty",
+    "weightUnit": "Měrný systém",
+    "celsius": "Celsius (°C)",
+    "fahrenheit": "Fahrenheit (°F)",
+    "kelvin": "Kelvin (K) — Termodynamický purismus 🔬",
+    "metric": "Metrický (g, kg)",
+    "imperial": "Imperiální (oz, lbs)"
   }
 }

@@ -94,6 +94,7 @@ export async function saveFlour(flour: Partial<FlourItem>): Promise<FlourItem> {
     showInCalculator: flour.showInCalculator !== false,
     isGlutenFree,
     isPreset: false,
+    recommendedForStyles: flour.recommendedForStyles || [],
     strengthCategory: category,
   };
 

@@ -9,16 +9,19 @@
   "calculator": {
     "title": "Pizza Dough Calculator",
     "subtitle": "Precision dough calculation, hydration, and preferments (Direct, Biga, Poolish).",
-    "method": "Dough Method",
+    "method": "Dough Preparation Method",
     "methods": {
       "direct": "Direct Dough",
       "directDesc": "All ingredients mixed in a single phase",
       "biga": "Biga",
-      "bigaDesc": "Stiff preferment (45% hydr.) for lightness and aeration",
+      "bigaDesc": "Stiff preferment (45–60% hydr.) for lightness and aeration",
       "poolish": "Poolish",
       "poolishDesc": "Liquid preferment (1:1) for extensibility and crisp"
     },
     "prefermentPct": "Preferment share of total flour",
+    "prefermentCustom": "Custom preferment share (%)",
+    "bigaHydration": "Biga hydration (%)",
+    "bigaHydrationDesc": "Standard 50% (range 45–60% based on flour absorption & style)",
     "flourSelect": "Select Flour",
     "topRecommended": "Top recommended for this style",
     "flourCustom": "Custom Flour Parameters",
@@ -157,5 +160,28 @@
     "hours": "h",
     "grams": "g",
     "pieces": "pcs"
+  },
+  "baking": {
+    "title": "Oven Type & Baking Parameters",
+    "homeOven": "Home Oven (max 250 °C / 480 °F)",
+    "homeOvenDesc": "Bake 6–8 min on baking steel / pizza stone. Recommended: add 1–2% olive oil and 1% malt/sugar for golden color.",
+    "pizzaOven": "Dedicated Pizza Oven (400–450 °C / 750–850 °F)",
+    "pizzaOvenDesc": "Electric or gas oven (Ooni, Roccbox, Effeuno). Bake 90–120s. Zero fat, zero sugar.",
+    "woodOven": "Wood-Fired Oven / AVPN Verace (485 °C / 900 °F)",
+    "woodOvenDesc": "Official AVPN standard: dome ~485 °C, floor 380–430 °C. Bake 60–90s directly on stone (biscotto di Sorrento).",
+    "temperature": "Baking Temperature",
+    "bakeTime": "Estimated Baking Time",
+    "seconds": "s",
+    "minutes": "min"
+  },
+  "settings": {
+    "title": "Units & Measurement Settings",
+    "tempUnit": "Temperature Unit",
+    "weightUnit": "Measurement System",
+    "celsius": "Celsius (°C)",
+    "fahrenheit": "Fahrenheit (°F)",
+    "kelvin": "Kelvin (K) — Thermodynamic purism 🔬",
+    "metric": "Metric (g, kg)",
+    "imperial": "Imperial (oz, lbs)"
   }
 }

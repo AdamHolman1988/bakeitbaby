@@ -53,6 +53,12 @@ flowchart TD
 | `#08` | ✅ shipped | P1 | Recipes Module (Database, API & Management UI) | [ADR 0006](docs/adr/0006-postgresql-data-model-and-persistence.md) | [`#08`](docs/roadmap/items/08-recipes-module-crud.md) |
 | `#09` | ✅ shipped | P1 | CI/CD Pipeline & Automated Testing Matrix | [ADR 0007](docs/adr/0007-testing-strategy-and-ci-cd.md) | [`#09`](docs/roadmap/items/09-ci-cd-pipeline-and-automated-testing.md) |
 | `#10` | ✅ shipped | P2 | Full End-to-End Verification, Performance & Documentation | [ADR 0001](docs/adr/0001-architecture-stack-and-workspace.md) | [`#10`](docs/roadmap/items/10-full-e2e-verification-and-polish.md) |
+| `#11` | 🔧 in_progress | P0 | Biga (45–60 % Hydration) & Poolish Preferment Sliders with Custom Inputs | [ADR 0004](docs/adr/0004-dough-math-and-fermentation-engine.md) | [`#11`](docs/roadmap/items/11-biga-and-poolish-sliders.md) |
+| `#12` | 🔧 in_progress | P0 | AVPN Disciplinare 2024 Specification (58 % Hydration, Zero Fat/Sugar) | [ADR 0004](docs/adr/0004-dough-math-and-fermentation-engine.md) | [`#12`](docs/roadmap/items/12-avpn-disciplinare-2024.md) |
+| `#13` | 🔧 in_progress | P0 | Oven Selection & Baking Architecture (Home Oven 250°C, Pizza Ovens 450°C, AVPN 485°C) | [ADR 0004](docs/adr/0004-dough-math-and-fermentation-engine.md) | [`#13`](docs/roadmap/items/13-oven-selection-and-baking-physics.md) |
+| `#14` | 🔧 in_progress | P1 | Pixel-Art Custom Iconography Engine (Methods, Phases & Ovens) | [ADR 0002](docs/adr/0002-design-tokens-and-typography.md) | [`#14`](docs/roadmap/items/14-pixel-art-iconography.md) |
+| `#15` | 🔧 in_progress | P1 | Global Units & Thermodynamics Settings (Celsius / Fahrenheit / Kelvin + Metric / Imperial) | [ADR 0005](docs/adr/0005-internationalization-strategy.md) | [`#15`](docs/roadmap/items/15-units-and-settings-engine.md) |
+| `#16` | 🔧 in_progress | P1 | Dynamic Top Recommended Flours Management via Mouky Database | [ADR 0006](docs/adr/0006-postgresql-data-model-and-persistence.md) | [`#16`](docs/roadmap/items/16-dynamic-recommended-flours.md) |
 
 ---
 
