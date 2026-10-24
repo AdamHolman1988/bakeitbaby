@@ -9,6 +9,11 @@ import Link from 'next/link';
 
 export default function DoughsPage() {
   const { t } = useAppLocale();
+  const styleLabel = (style: string) => {
+    const key = `doughs.style.${style}`;
+    const label = t(key);
+    return label === key ? style : label;
+  };
   const [doughs, setDoughs] = React.useState<DoughItem[]>(PRESET_DOUGHS);
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -50,7 +55,7 @@ export default function DoughsPage() {
       const p = new URLSearchParams(window.location.search);
       if (p.get('save') === 'true') {
         setEditingDough(null);
-        setFormName(p.get('name') || 'Moje nové těsto');
+        setFormName(p.get('name') || t('doughs.defaults.newName'));
         setFormHydration(Number(p.get('hydration')) || 65);
         setFormBalls(Number(p.get('pizzas')) || 4);
         setFormWeight(Number(p.get('weight')) || 260);
@@ -62,12 +67,12 @@ export default function DoughsPage() {
         setFormMethod((p.get('method') as DoughItem['prefermentType'] | null) || 'direct');
         setFormPrefPct(Number(p.get('pref')) || 0);
         setFormStyle(p.get('style') || 'neapolitan');
-        setFormFlourName('Doporučená mouka');
-        setFormInstructionsText('Rozpusťte sůl ve vodě.\nPřidejte mouku a droždí.\nHněťte do sametové struktury.\nNechte zrát podle plánu.');
+        setFormFlourName(t('doughs.defaults.recommendedFlour'));
+        setFormInstructionsText(t('doughs.defaults.instructionsFromCalculator'));
         setModalOpen(true);
       }
     }
-  }, [loadData]);
+  }, [loadData, t]);
 
   const openAddModal = () => {
     setEditingDough(null);
@@ -87,7 +92,7 @@ export default function DoughsPage() {
     setFormRt(8);
     setFormCt(16);
     setFormFlourName('Caputo Pizzeria Tipo 00');
-    setFormInstructionsText('Rozpusťte sůl ve studené vodě.\nPřidejte mouku a droždí.\nHněťte do hladka.\nUložte do lednice na 16 hodin.');
+    setFormInstructionsText(t('doughs.defaults.instructions'));
     setModalOpen(true);
   };
 
@@ -221,8 +226,8 @@ export default function DoughsPage() {
       ) : doughs.length === 0 ? (
         <div className="py-12 text-center rounded-xl border border-[var(--color-border)] p-8">
           <ChefHat className="w-10 h-10 mx-auto text-[var(--color-text-muted)] mb-2" />
-          <p className="text-sm font-semibold text-[var(--color-text-main)]">Nenalezena žádná těsta</p>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">Zkuste upravit vyhledávání.</p>
+          <p className="text-sm font-semibold text-[var(--color-text-main)]">{t('doughs.empty')}</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">{t('doughs.emptyHint')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -247,10 +252,10 @@ export default function DoughsPage() {
                         {dough.name}
                       </h3>
                       <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mt-0.5">
-                        <span className="capitalize">{dough.pizzaStyle}</span>
+                        <span>{styleLabel(dough.pizzaStyle)}</span>
                         <span>•</span>
                         <span className="font-mono font-semibold text-[var(--color-primary)]">
-                          {dough.prefermentType === 'direct' ? 'Přímé těsto' : dough.prefermentType.toUpperCase()}
+                          {dough.prefermentType === 'direct' ? t('calculator.methods.direct') : dough.prefermentType.toUpperCase()}
                         </span>
                         <span>•</span>
                         <span>{dough.doughBallsCount} × {dough.ballWeightGrams} g</span>
@@ -260,7 +265,7 @@ export default function DoughsPage() {
 
                   <div className="flex items-center gap-3">
                     <span className="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-main)]">
-                      {dough.hydrationPercentage} % hydr.
+                      {dough.hydrationPercentage} % {t('calculator.results.hydrShort')}
                     </span>
                     {isExpanded ? (
                       <ChevronUp className="w-4 h-4 text-[var(--color-text-muted)]" />
@@ -282,27 +287,27 @@ export default function DoughsPage() {
                     {/* Baker's percentages bar */}
                     <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center font-mono">
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Hydratace</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('doughs.stats.hydration')}</span>
                         <strong className="text-[var(--color-text-main)]">{dough.hydrationPercentage} %</strong>
                       </div>
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Sůl</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('doughs.stats.salt')}</span>
                         <strong className="text-[var(--color-text-main)]">{dough.saltPercentage} %</strong>
                       </div>
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Droždí</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('doughs.stats.yeast')}</span>
                         <strong className="text-[var(--color-text-main)]">{dough.yeastPercentage} %</strong>
                       </div>
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Olej</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('doughs.stats.oil')}</span>
                         <strong className="text-[var(--color-text-main)]">{dough.oilPercentage} %</strong>
                       </div>
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">RT kynutí</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('doughs.stats.rt')}</span>
                         <strong className="text-[var(--color-text-main)]">{dough.fermentationRtHours} h</strong>
                       </div>
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Chlad CT</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('doughs.stats.ct')}</span>
                         <strong className="text-[var(--color-text-main)]">{dough.fermentationCtHours} h</strong>
                       </div>
                     </div>
@@ -311,7 +316,7 @@ export default function DoughsPage() {
                     {dough.instructions && dough.instructions.length > 0 && (
                       <div className="p-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] space-y-1.5">
                         <span className="font-semibold text-[var(--color-text-main)] block">
-                          Technologický postup přípravy:
+                          {t('doughs.instructionsTitle')}
                         </span>
                         <ol className="list-decimal list-inside space-y-1 text-[var(--color-text-muted)] leading-relaxed">
                           {dough.instructions.map((step, idx) => (
@@ -330,7 +335,7 @@ export default function DoughsPage() {
                           className="px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] font-semibold cursor-pointer text-[var(--color-text-main)]"
                         >
                           <Edit2 className="w-3.5 h-3.5 inline mr-1" />
-                          Upravit
+                          {t('common.edit')}
                         </button>
                         {!dough.isPreset && (
                           <button
@@ -339,7 +344,7 @@ export default function DoughsPage() {
                             className="px-2.5 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-semibold cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5 inline mr-1" />
-                            Smazat
+                            {t('common.delete')}
                           </button>
                         )}
                       </div>
@@ -349,7 +354,7 @@ export default function DoughsPage() {
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold cursor-pointer shadow-xs"
                       >
                         <Calculator className="w-3.5 h-3.5" />
-                        <span>Otevřít v kalkulátoru</span>
+                        <span>{t('doughs.openInCalculator')}</span>
                       </Link>
                     </div>
                   </div>
@@ -371,14 +376,14 @@ export default function DoughsPage() {
             <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                  Název těsta *
+                  {t('doughs.form.name')} *
                 </label>
                 <input
                   type="text"
                   required
                   value={formName}
                   onChange={e => setFormName(e.target.value)}
-                  placeholder="Např. Moje Biga 70%"
+                  placeholder={t('doughs.form.namePlaceholder')}
                   className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
@@ -386,31 +391,31 @@ export default function DoughsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Styl pizzy
+                    {t('doughs.form.style')}
                   </label>
                   <select
                     value={formStyle}
                     onChange={e => setFormStyle(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] cursor-pointer"
                   >
-                    <option value="neapolitan">Klasická Neapolská</option>
-                    <option value="canotto">Moderní Canotto</option>
-                    <option value="roman_crispy">Římská plech (Teglia)</option>
-                    <option value="glutenfree">Bezlepková</option>
-                    <option value="focaccia">Focaccia</option>
+                    <option value="neapolitan">{t('doughs.style.neapolitan')}</option>
+                    <option value="canotto">{t('doughs.style.canotto')}</option>
+                    <option value="roman_crispy">{t('doughs.style.roman_crispy')}</option>
+                    <option value="glutenfree">{t('doughs.style.glutenfree')}</option>
+                    <option value="focaccia">{t('doughs.style.focaccia')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Metoda prefermentu
+                    {t('doughs.form.method')}
                   </label>
                   <select
                     value={formMethod}
                     onChange={e => setFormMethod(e.target.value as DoughItem['prefermentType'])}
                     className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] cursor-pointer"
                   >
-                    <option value="direct">Přímé těsto</option>
+                    <option value="direct">{t('calculator.methods.direct')}</option>
                     <option value="biga">Biga</option>
                     <option value="poolish">Poolish</option>
                   </select>
@@ -420,7 +425,7 @@ export default function DoughsPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Hydratace (%)
+                    {t('calculator.hydration')}
                   </label>
                   <input
                     type="number"
@@ -433,7 +438,7 @@ export default function DoughsPage() {
                 </div>
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Počet bochánků
+                    {t('doughs.form.balls')}
                   </label>
                   <input
                     type="number"
@@ -446,7 +451,7 @@ export default function DoughsPage() {
                 </div>
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Váha bochánku (g)
+                    {t('calculator.ballWeight')}
                   </label>
                   <input
                     type="number"
@@ -462,7 +467,7 @@ export default function DoughsPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Sůl (%)
+                    {t('calculator.saltPercentage')}
                   </label>
                   <input
                     type="number"
@@ -474,7 +479,7 @@ export default function DoughsPage() {
                 </div>
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    RT kynutí (h)
+                    {t('doughs.form.rt')}
                   </label>
                   <input
                     type="number"
@@ -485,7 +490,7 @@ export default function DoughsPage() {
                 </div>
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Chlad CT (h)
+                    {t('doughs.form.ct')}
                   </label>
                   <input
                     type="number"
@@ -498,20 +503,20 @@ export default function DoughsPage() {
 
               <div>
                 <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                  Popis
+                  {t('doughs.form.description')}
                 </label>
                 <input
                   type="text"
                   value={formDescription}
                   onChange={e => setFormDescription(e.target.value)}
-                  placeholder="Stručný popis chuti a těsta..."
+                  placeholder={t('doughs.form.descriptionPlaceholder')}
                   className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
 
               <div>
                 <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                  Instrukce k přípravě (jeden krok na řádek)
+                  {t('doughs.form.instructions')}
                 </label>
                 <textarea
                   rows={4}

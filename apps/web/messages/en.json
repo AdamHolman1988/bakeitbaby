@@ -4,7 +4,8 @@
     "doughs": "Doughs",
     "recipes": "Recipes",
     "flours": "Flours",
-    "subtitle": "Pizza & Flour Workbench"
+    "subtitle": "Pizza & Flour Workbench",
+    "toggle": "Toggle navigation"
   },
   "calculator": {
     "title": "Pizza Dough Calculator",
@@ -57,10 +58,88 @@
     "saveAsRecipe": "Save as Recipe",
     "phase1Preferment": "Phase 1: Preferment",
     "phase2Final": "Phase 2: Final Dough (Refresh)",
-    "warningHydrationHigh": "Warning: Chosen hydration ({selected}%) exceeds recommended maximum for this flour ({max}%). Dough may be sticky.",
-    "warningHydrationLow": "Notice: Chosen hydration ({selected}%) is below recommended minimum for this flour ({min}%). Dough will be stiff.",
-    "warningFermentationLong": "Warning: Fermentation time ({hours}h) exceeds enzymatic stability for flour W {w}. Gluten breakdown risk.",
-    "warningFermentationShort": "Tip: High strength flour W {w} benefits from longer maturation (at least {min}h)."
+    "presets": {
+      "neapolitan": "Classic Neapolitan (AVPN)",
+      "contemporary": "Contemporary / Canotto",
+      "roman_pan": "Roman Pan (Teglia)",
+      "gluten_free": "Gluten-Free",
+      "quick_direct": "Quick Same-Day"
+    },
+    "phaseCount": {
+      "single": "1 phase",
+      "double": "2 phases (preferment)"
+    },
+    "methodSub": {
+      "direct": "All at once",
+      "biga": "Stiff ({hydration} % hydr.)",
+      "poolish": "Liquid (100 % hydr.)"
+    },
+    "bigaPrefermentHint": "Recommended 100 % or 50 % of total flour",
+    "poolishPrefermentHint": "Recommended 20–30 % (Poolish is 100 % hydration = 1:1 flour to water)",
+    "sections": {
+      "flour": "Flour Selection & Strength (W)",
+      "quantities": "Pizzas & Hydration",
+      "yeast": "Yeast, Salt & Extras",
+      "fermentation": "Temperatures & Proofing Plan"
+    },
+    "manageFlours": "Manage flours →",
+    "topRecommendedFor": "Top picks for {style}:",
+    "glutenFree": "Gluten-free",
+    "protein": "Protein",
+    "flourStats": {
+      "strength": "Strength",
+      "elasticity": "Elasticity P/L",
+      "hydration": "Rec. hydration",
+      "maturation": "Maturation"
+    },
+    "yeastShort": {
+      "fresh": "Fresh yeast",
+      "instant_dry": "Instant dry",
+      "active_dry": "Active dry",
+      "sourdough": "Sourdough"
+    },
+    "ovens": {
+      "home": "Home oven",
+      "dedicated": "Pizza oven",
+      "wood": "Wood-fired oven"
+    },
+    "results": {
+      "title": "Final Formula",
+      "hydrShort": "hydr.",
+      "yeast": "Yeast",
+      "remainingFlour": "Remaining flour",
+      "remainingWater": "Remaining water",
+      "maturation": "Maturation:",
+      "preparation": "Preparation:",
+      "temperature": "Temperature:",
+      "method": "Method:",
+      "totalSummary": "Total ingredients (100 % flour base):",
+      "warningsTitle": "Technical notes:",
+      "schedule": "Timeline ({hours} h total)",
+      "bulkRT": "Bulk RT",
+      "fridgeCT": "Fridge CT",
+      "ballsRT": "Balls RT"
+    },
+    "phases": {
+      "bigaTitle": "Phase 1: Biga ({pct} % of flour, {hydration} % hydr.)",
+      "bigaSchedule": "1 hour at room temperature (18–20 °C) + 16–24 hours in the fridge (4–5 °C) or a wine cooler (16–18 °C)",
+      "bigaInstructions": "Don't develop the gluten! Just lightly mix the flour with water and yeast into lumpy, airy pieces with no dry flour left.",
+      "finalTitle": "Phase 2: Final Dough (Refresh)",
+      "bigaFinalWater": "Use ice-cold water (3–4 °C) straight from the fridge/freezer so the dough stays below 23 °C while kneading.",
+      "bigaFinalInstructions": "Tear the biga into pieces in a bowl. Add the remaining flour and start kneading. Slowly add the ice-cold water a little at a time (bassinage), then work in the salt and oil last. Rest 30 min, shape into balls and proof 3–4 hours at room temperature before baking.",
+      "poolishTitle": "Phase 1: Poolish ({pct} % of flour)",
+      "poolishSchedule": "1 hour at room temperature + 16–24 hours in the fridge (4 °C), until the surface is full of bubbles",
+      "poolishInstructions": "In a lidded container, mix the flour, water and a pinch of yeast into a smooth, pancake-batter consistency.",
+      "poolishFinalWater": "Use cold water from the fridge to keep the dough at the ideal temperature.",
+      "poolishFinalInstructions": "Pour the bubbly poolish onto the remaining flour and start kneading. Add the remaining water, then the salt and oil. Knead 10–12 minutes until silky and extensible. Rest 40 minutes, weigh out the balls and proof 2–3 hours before baking."
+    },
+    "warnings": {
+      "hydrationHigh": "The chosen hydration ({hydration} %) exceeds the recommended maximum for W {w} flour ({max} %). The dough may be sticky and lose its shape.",
+      "hydrationLow": "The chosen hydration ({hydration} %) is below the recommended minimum for W {w} flour ({min} %).",
+      "fermentationLong": "Fermentation time ({hours} h) is too long for W {w} flour (recommended max {max} h). Risk of gluten breakdown.",
+      "fermentationShort": "W {w} flour needs a longer maturation (at least {min} h) for optimal starch breakdown and easy digestibility.",
+      "glutenFreeDry": "Gluten-free blends need high hydration (80–85 %). At {hydration} % the dough will be too dry."
+    }
   },
   "flours": {
     "title": "Flour Catalog & Registry",
@@ -107,7 +186,36 @@
       "isGlutenFree": "This is a gluten-free flour blend",
       "cancel": "Cancel",
       "save": "Save Flour",
-      "close": "Close"
+      "close": "Close",
+      "namePlaceholder": "e.g. Caputo Nuvola Super",
+      "brandPlaceholder": "e.g. Mulino Caputo",
+      "fermentationPlaceholder": "24–48 h (cold)",
+      "notesPlaceholder": "Description, tips, suitable recipes...",
+      "recommendedFor": "Top recommended flour for pizza styles:"
+    },
+    "reference": {
+      "title": "Flour strength reference (W index)",
+      "weak": "Weak • 50–55 % hydr. (2–4 h)",
+      "medium": "Medium • 55–62 % (8–14 h)",
+      "strong": "Strong • 60–70 % (24–48 h)",
+      "manitoba": "Manitoba • 70–85 % (48–72 h)",
+      "glutenFree": "Gluten-free • 80–85 % hydr."
+    },
+    "empty": "No flours match the selected filters.",
+    "styleTags": {
+      "neapolitan": "Neapolitan (AVPN)",
+      "contemporary": "Canotto",
+      "roman_pan": "Teglia",
+      "gluten_free": "Gluten-free",
+      "quick_direct": "Quick"
+    },
+    "shownInCalculator": "Shown in calculator",
+    "hiddenInCalculator": "Hidden in calculator",
+    "detail": {
+      "strength": "Strength W",
+      "fermentation": "Recommended dough maturation",
+      "notes": "Technical notes & usage",
+      "useInCalculator": "Use in Calculator"
     }
   },
   "doughs": {
@@ -123,6 +231,36 @@
       "roman_crispy": "Roman Pan (Teglia)",
       "glutenfree": "Gluten-Free",
       "focaccia": "Focaccia"
+    },
+    "empty": "No doughs found",
+    "emptyHint": "Try adjusting your search.",
+    "instructionsTitle": "Preparation steps:",
+    "openInCalculator": "Open in Calculator",
+    "stats": {
+      "hydration": "Hydration",
+      "salt": "Salt",
+      "yeast": "Yeast",
+      "oil": "Oil",
+      "rt": "RT proof",
+      "ct": "Cold CT"
+    },
+    "form": {
+      "name": "Dough name",
+      "namePlaceholder": "e.g. My Biga 70%",
+      "style": "Pizza style",
+      "method": "Preferment method",
+      "balls": "Number of balls",
+      "rt": "RT proof (h)",
+      "ct": "Cold CT (h)",
+      "description": "Description",
+      "descriptionPlaceholder": "Short description of flavor and texture...",
+      "instructions": "Preparation steps (one per line)"
+    },
+    "defaults": {
+      "newName": "My new dough",
+      "recommendedFlour": "Recommended flour",
+      "instructionsFromCalculator": "Dissolve the salt in the water.\nAdd the flour and yeast.\nKnead until velvety smooth.\nMature according to the schedule.",
+      "instructions": "Dissolve the salt in cold water.\nAdd the flour and yeast.\nKnead until smooth.\nRefrigerate for 16 hours."
     }
   },
   "recipes": {
@@ -143,7 +281,45 @@
     "noDough": "No dough linked / Custom",
     "bakeSettings": "Baking Parameters",
     "ingredientsList": "Ingredients & Toppings",
-    "instructions": "Baking Steps"
+    "instructions": "Baking Steps",
+    "empty": "No recipes found",
+    "emptyHint": "Try adjusting your search or add a new recipe.",
+    "doughLabel": "Dough",
+    "ingredientCount": "{count} ingredients",
+    "bakeTime": "Bake time",
+    "prepTime": "Prep",
+    "usedDough": "Dough used",
+    "customDough": "Custom / No dough",
+    "ingredientsTitle": "Ingredients & toppings ({count}):",
+    "stepsTitle": "Baking & serving steps:",
+    "viewDough": "View dough →",
+    "stages": {
+      "base": "base",
+      "beforeBaking": "before baking",
+      "afterBaking": "after baking"
+    },
+    "form": {
+      "name": "Recipe name",
+      "namePlaceholder": "e.g. Pizza Margherita Verace",
+      "linkedDough": "Linked dough (optional)",
+      "bakeTemp": "Baking temperature (°C)",
+      "bakeSeconds": "Bake time (seconds)",
+      "prepTime": "Prep time (min)",
+      "description": "Recipe description",
+      "descriptionPlaceholder": "The queen of Neapolitan pizza...",
+      "addItem": "Add item",
+      "itemName": "Name (e.g. Sugo San Marzano)",
+      "itemAmount": "Amount (80 g)",
+      "itemStage": "Stage (base/after baking)",
+      "steps": "Baking steps (one per line)"
+    },
+    "defaults": {
+      "basil": "Fresh basil",
+      "basilAmount": "5 leaves",
+      "oil": "Extra virgin olive oil",
+      "oilAmount": "1 tbsp",
+      "instructions": "Stretch the dough.\nSpread the sugo and add the mozzarella.\nBake for 75 seconds at 450 °C.\nFinish with basil and olive oil."
+    }
   },
   "common": {
     "loading": "Loading...",
@@ -182,6 +358,16 @@
     "fahrenheit": "Fahrenheit (°F)",
     "kelvin": "Kelvin (K) — Thermodynamic purism 🔬",
     "metric": "Metric (g, kg)",
-    "imperial": "Imperial (oz, lbs)"
+    "imperial": "Imperial (oz, lbs)",
+    "celsiusDesc": "Traditional European baking standard",
+    "fahrenheitDesc": "American and British recipes",
+    "kelvinDesc": "273.15 K = 0 °C (for physicists and pizza geeks)",
+    "metricDesc": "Grams & kilograms",
+    "imperialDesc": "Ounces & pounds (oz / lbs)"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "toggle": "Toggle theme"
   }
 }

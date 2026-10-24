@@ -135,7 +135,7 @@ export default function FloursPage() {
     if (flour.isGlutenFree || flour.wIndex === null) {
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-[var(--color-badge-glutenfree-bg)] text-[var(--color-badge-glutenfree-text)]">
-          Bezlepková
+          {t('calculator.glutenFree')}
         </span>
       );
     }
@@ -181,28 +181,28 @@ export default function FloursPage() {
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3.5 shadow-xs">
         <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-[var(--color-text-muted)]">
           <Info className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-          <span>Referenční indexy síly mouky (W Index)</span>
+          <span>{t('flours.reference.title')}</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
           <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
             <span className="font-mono font-bold text-[var(--color-text-main)] block">W 160–200</span>
-            <span className="text-[11px] text-[var(--color-text-muted)]">Slabá • 50–55 % hydr. (2–4 h)</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">{t('flours.reference.weak')}</span>
           </div>
           <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
             <span className="font-mono font-bold text-[var(--color-text-main)] block">W 220–260</span>
-            <span className="text-[11px] text-[var(--color-text-muted)]">Střední • 55–62 % (8–14 h)</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">{t('flours.reference.medium')}</span>
           </div>
           <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
             <span className="font-mono font-bold text-[var(--color-text-main)] block">W 270–310</span>
-            <span className="text-[11px] text-[var(--color-text-muted)]">Silná • 60–70 % (24–48 h)</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">{t('flours.reference.strong')}</span>
           </div>
           <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
             <span className="font-mono font-bold text-[var(--color-text-main)] block">W 320–380+</span>
-            <span className="text-[11px] text-[var(--color-text-muted)]">Manitoba • 70–85 % (48–72 h)</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">{t('flours.reference.manitoba')}</span>
           </div>
           <div className="p-2 rounded-lg bg-[var(--color-surface-subtle)]">
-            <span className="font-mono font-bold text-[var(--color-text-main)] block">Gluten-Free</span>
-            <span className="text-[11px] text-[var(--color-text-muted)]">Bezlepková • 80–85 % hydr.</span>
+            <span className="font-mono font-bold text-[var(--color-text-main)] block">{t('flours.strength.gluten_free')}</span>
+            <span className="text-[11px] text-[var(--color-text-muted)]">{t('flours.reference.glutenFree')}</span>
           </div>
         </div>
       </div>
@@ -227,7 +227,7 @@ export default function FloursPage() {
             { id: 'medium', label: 'W 220–260' },
             { id: 'strong', label: 'W 270–310' },
             { id: 'manitoba', label: 'W 320–380+' },
-            { id: 'gluten_free', label: 'Bezlepkové' },
+            { id: 'gluten_free', label: t('flours.strength.gluten_free') },
           ].map(tab => (
             <button
               key={tab.id}
@@ -272,7 +272,7 @@ export default function FloursPage() {
               ) : flours.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="py-12 text-center text-[var(--color-text-muted)]">
-                    Žádná mouka neodpovídá zadaným filtrům.
+                    {t('flours.empty')}
                   </td>
                 </tr>
               ) : (
@@ -298,7 +298,7 @@ export default function FloursPage() {
                                 key={st}
                                 className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
                               >
-                                ⭐ {st === 'neapolitan' ? 'Neapol (AVPN)' : st === 'contemporary' ? 'Canotto' : st === 'roman_pan' ? 'Teglia' : st === 'gluten_free' ? 'Bezlepková' : 'Rychlá'}
+                                ⭐ {t(`flours.styleTags.${st}`)}
                               </span>
                             ))}
                           </div>
@@ -346,7 +346,7 @@ export default function FloursPage() {
                             ? 'bg-[var(--color-primary)]'
                             : 'bg-zinc-300 dark:bg-zinc-700'
                         }`}
-                        title={flour.showInCalculator !== false ? 'Zobrazuje se v kalkulátoru' : 'Skryto v kalkulátoru'}
+                        title={flour.showInCalculator !== false ? t('flours.shownInCalculator') : t('flours.hiddenInCalculator')}
                       >
                         <span
                           className={`inline-block w-3.5 h-3.5 rounded-full bg-white transition-transform ${
@@ -363,7 +363,7 @@ export default function FloursPage() {
                           type="button"
                           onClick={() => setDetailModalFlour(flour)}
                           className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
-                          title="Detail"
+                          title={t('common.detail')}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -371,7 +371,7 @@ export default function FloursPage() {
                           type="button"
                           onClick={() => openEditModal(flour)}
                           className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
-                          title="Upravit"
+                          title={t('common.edit')}
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
@@ -380,7 +380,7 @@ export default function FloursPage() {
                             type="button"
                             onClick={e => handleDelete(flour.id, e)}
                             className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer"
-                            title="Smazat"
+                            title={t('common.delete')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -395,7 +395,7 @@ export default function FloursPage() {
         </div>
       </div>
 
-      {/* Flour Detail Modal (Where extensive notes / sračky live) */}
+      {/* Flour Detail Modal (extended notes) */}
       {detailModalFlour && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
           <div className="w-full max-w-xl rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
@@ -422,25 +422,25 @@ export default function FloursPage() {
             {/* Quick stats grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
               <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">Síla W</span>
+                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">{t('flours.detail.strength')}</span>
                 <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">
-                  {detailModalFlour.wIndex ? `W ${detailModalFlour.wIndex}` : 'Bezlepková'}
+                  {detailModalFlour.wIndex ? `W ${detailModalFlour.wIndex}` : t('calculator.glutenFree')}
                 </span>
               </div>
               <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">Elasticita P/L</span>
+                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">{t('calculator.flourStats.elasticity')}</span>
                 <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">
                   {detailModalFlour.elasticityPL || 'N/A'}
                 </span>
               </div>
               <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">Bílkoviny</span>
+                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">{t('calculator.protein')}</span>
                 <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">
                   {detailModalFlour.proteinPercentage} %
                 </span>
               </div>
               <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
-                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">Dop. hydratace</span>
+                <span className="text-[10px] text-[var(--color-text-muted)] block font-semibold">{t('calculator.flourStats.hydration')}</span>
                 <span className="font-mono font-bold text-sm text-[var(--color-text-main)]">
                   {detailModalFlour.minHydration}–{detailModalFlour.maxHydration} %
                 </span>
@@ -451,7 +451,7 @@ export default function FloursPage() {
             <div className="space-y-3 text-sm">
               <div className="p-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
                 <span className="text-xs font-semibold text-[var(--color-text-muted)] block mb-0.5">
-                  Doporučený čas zrání těsta
+                  {t('flours.detail.fermentation')}
                 </span>
                 <span className="font-bold text-[var(--color-text-main)]">
                   {detailModalFlour.recommendedFermentationHours}
@@ -461,7 +461,7 @@ export default function FloursPage() {
               {detailModalFlour.usageNotes && (
                 <div className="p-3.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] space-y-1">
                   <span className="text-xs font-semibold text-[var(--color-text-muted)] block">
-                    Technologické poznámky a využití
+                    {t('flours.detail.notes')}
                   </span>
                   <p className="text-xs text-[var(--color-text-main)] leading-relaxed">
                     {detailModalFlour.usageNotes}
@@ -484,7 +484,7 @@ export default function FloursPage() {
                 href={`/?flourId=${detailModalFlour.id}`}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
               >
-                <span>Použít v kalkulátoru</span>
+                <span>{t('flours.detail.useInCalculator')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -520,7 +520,7 @@ export default function FloursPage() {
                     required
                     value={formName}
                     onChange={e => setFormName(e.target.value)}
-                    placeholder="Např. Caputo Nuvola Super"
+                    placeholder={t('flours.modal.namePlaceholder')}
                     className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                   />
                 </div>
@@ -533,7 +533,7 @@ export default function FloursPage() {
                     type="text"
                     value={formBrand}
                     onChange={e => setFormBrand(e.target.value)}
-                    placeholder="Např. Mulino Caputo"
+                    placeholder={t('flours.modal.brandPlaceholder')}
                     className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                   />
                 </div>
@@ -637,7 +637,7 @@ export default function FloursPage() {
                   type="text"
                   value={formFermentation}
                   onChange={e => setFormFermentation(e.target.value)}
-                  placeholder="24–48 h (chlad)"
+                  placeholder={t('flours.modal.fermentationPlaceholder')}
                   className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
@@ -650,22 +650,22 @@ export default function FloursPage() {
                   rows={3}
                   value={formNotes}
                   onChange={e => setFormNotes(e.target.value)}
-                  placeholder="Popis, doporučení, vhodné receptury..."
+                  placeholder={t('flours.modal.notesPlaceholder')}
                   className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
 
               <div>
                 <label className="block font-semibold text-[var(--color-text-main)] mb-1.5">
-                  ⭐ Top doporučená mouka pro pizza styly:
+                  ⭐ {t('flours.modal.recommendedFor')}
                 </label>
                 <div className="flex flex-wrap gap-1.5">
                   {[
-                    { id: 'neapolitan', label: '🍕 Klasická Neapol (AVPN)' },
-                    { id: 'contemporary', label: '☁️ Contemporary Canotto' },
-                    { id: 'roman_pan', label: '🥖 Římská Teglia' },
-                    { id: 'gluten_free', label: '🌾 Bezlepková' },
-                    { id: 'quick_direct', label: '⚡ Rychlá na dnes' },
+                    { id: 'neapolitan', label: `🍕 ${t('calculator.presets.neapolitan')}` },
+                    { id: 'contemporary', label: `☁️ ${t('calculator.presets.contemporary')}` },
+                    { id: 'roman_pan', label: `🥖 ${t('calculator.presets.roman_pan')}` },
+                    { id: 'gluten_free', label: `🌾 ${t('calculator.presets.gluten_free')}` },
+                    { id: 'quick_direct', label: `⚡ ${t('calculator.presets.quick_direct')}` },
                   ].map(style => {
                     const active = formRecommendedStyles.includes(style.id);
                     return (

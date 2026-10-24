@@ -21,7 +21,6 @@ import Link from 'next/link';
 
 interface StylePreset {
   id: string;
-  name: string;
   icon: string;
   hydration: number;
   salt: number;
@@ -38,7 +37,6 @@ interface StylePreset {
 const STYLE_PRESETS: StylePreset[] = [
   {
     id: 'neapolitan',
-    name: 'Klasická Neapol (AVPN)',
     icon: '🍕',
     hydration: 58, // AVPN Disciplinare 2024: 55.5% - 62.5% (canonical 58%)
     salt: 2.9,
@@ -49,11 +47,10 @@ const STYLE_PRESETS: StylePreset[] = [
     defaultFlourId: 5, // Caputo Pizzeria
     method: 'direct',
     prefermentPct: 0,
-    recommendedFlourIds: [5, 4, 3], // Caputo Pizzeria, Le 5 Stagioni Napoletana, Babiččina volba na pizzu
+    recommendedFlourIds: [5, 4, 3], // Caputo Pizzeria, Le 5 Stagioni Napoletana, Babiččina volba (pizza)
   },
   {
     id: 'contemporary',
-    name: 'Contemporary / Canotto',
     icon: '☁️',
     hydration: 72,
     salt: 2.6,
@@ -68,7 +65,6 @@ const STYLE_PRESETS: StylePreset[] = [
   },
   {
     id: 'roman_pan',
-    name: 'Římská plech (Teglia)',
     icon: '🥖',
     hydration: 78,
     salt: 2.5,
@@ -83,7 +79,6 @@ const STYLE_PRESETS: StylePreset[] = [
   },
   {
     id: 'gluten_free',
-    name: 'Bezlepková (Gluten-Free)',
     icon: '🌾',
     hydration: 82,
     salt: 2.5,
@@ -98,7 +93,6 @@ const STYLE_PRESETS: StylePreset[] = [
   },
   {
     id: 'quick_direct',
-    name: 'Rychlá na dnes',
     icon: '⚡',
     hydration: 60,
     salt: 2.5,
@@ -109,13 +103,14 @@ const STYLE_PRESETS: StylePreset[] = [
     defaultFlourId: 2, // Caputo Classica
     method: 'direct',
     prefermentPct: 0,
-    recommendedFlourIds: [2, 3, 1], // Caputo Classica, Babiččina na pizzu, Babiččina hladká
+    recommendedFlourIds: [2, 3, 1], // Caputo Classica, Babiččina volba pizza & all-purpose
   },
 ];
 
 export default function CalculatorPage() {
   const { t } = useAppLocale();
   const { formatTemp, formatWeight } = useSettings();
+  const presetName = (id: string) => t(`calculator.presets.${id}`);
   const [flours, setFlours] = React.useState<FlourItem[]>(PRESET_FLOURS);
   const [activeStyleId, setActiveStyleId] = React.useState<string>('neapolitan');
 
@@ -276,7 +271,7 @@ export default function CalculatorPage() {
                     : 'bg-[var(--color-surface)] text-[var(--color-text-main)] border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]'
                 }`}
               >
-                <span>{preset.icon} {preset.name} ({preset.hydration} %)</span>
+                <span>{preset.icon} {presetName(preset.id)} ({preset.hydration} %)</span>
               </button>
             );
           })}
@@ -287,22 +282,22 @@ export default function CalculatorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Controls Column */}
         <div className="lg:col-span-7 space-y-4">
-          {/* Method Selection (Přímé, Biga, Poolish) */}
+          {/* Method Selection (Direct, Biga, Poolish) */}
           <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs space-y-3.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)]">
                 01 • {t('calculator.method')}
               </span>
               <span className="text-[11px] font-mono text-[var(--color-text-muted)]">
-                {method === 'direct' ? '1 fáze' : '2 fáze (Předkvas)'}
+                {method === 'direct' ? t('calculator.phaseCount.single') : t('calculator.phaseCount.double')}
               </span>
             </div>
 
             <div className="grid grid-cols-3 gap-2.5">
               {[
-                { id: 'direct', label: t('calculator.methods.direct'), icon: PixelDirectIcon, sub: 'Vše dohromady' },
-                { id: 'biga', label: t('calculator.methods.biga'), icon: PixelBigaIcon, sub: `Tuhý (${bigaHydration} % hydr.)` },
-                { id: 'poolish', label: t('calculator.methods.poolish'), icon: PixelPoolishIcon, sub: 'Tekutý (100 % hydr.)' },
+                { id: 'direct', label: t('calculator.methods.direct'), icon: PixelDirectIcon, sub: t('calculator.methodSub.direct') },
+                { id: 'biga', label: t('calculator.methods.biga'), icon: PixelBigaIcon, sub: t('calculator.methodSub.biga', { hydration: bigaHydration }) },
+                { id: 'poolish', label: t('calculator.methods.poolish'), icon: PixelPoolishIcon, sub: t('calculator.methodSub.poolish') },
               ].map(m => {
                 const isSelected = method === m.id;
                 const Icon = m.icon;
@@ -346,7 +341,7 @@ export default function CalculatorPage() {
                         {t('calculator.prefermentPct')}
                       </span>
                       <span className="text-[11px] text-[var(--color-text-muted)]">
-                        Doporučeno 100 % nebo 50 % celkové mouky
+                        {t('calculator.bigaPrefermentHint')}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -453,7 +448,7 @@ export default function CalculatorPage() {
                       {t('calculator.prefermentPct')}
                     </span>
                     <span className="text-[11px] text-[var(--color-text-muted)]">
-                      Doporučeno 20–30 % (Poolish má 100 % hydrataci = 1:1 poměr mouky a vody)
+                      {t('calculator.poolishPrefermentHint')}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -503,13 +498,13 @@ export default function CalculatorPage() {
           <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs space-y-3.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)]">
-                02 • Výběr mouky a síla (W)
+                02 • {t('calculator.sections.flour')}
               </span>
               <Link
                 href="/flours"
                 className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"
               >
-                Spravovat mouky →
+                {t('calculator.manageFlours')}
               </Link>
             </div>
 
@@ -517,7 +512,7 @@ export default function CalculatorPage() {
             {recommendedFlours.length > 0 && (
               <div className="p-2.5 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] space-y-1.5">
                 <span className="text-[11px] font-semibold text-[var(--color-text-muted)] block">
-                  ⭐ Top doporučené pro {activePreset.name}:
+                  ⭐ {t('calculator.topRecommendedFor', { style: presetName(activePreset.id) })}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {recommendedFlours.map(rf => {
@@ -533,7 +528,7 @@ export default function CalculatorPage() {
                             : 'bg-[var(--color-surface)] text-[var(--color-text-main)] border-[var(--color-border)] hover:bg-[var(--color-surface-hover)]'
                         }`}
                       >
-                        {rf.name} {rf.wIndex ? `(W ${rf.wIndex})` : '(Bezlepková)'}
+                        {rf.name} {rf.wIndex ? `(W ${rf.wIndex})` : `(${t('calculator.glutenFree')})`}
                       </button>
                     );
                   })}
@@ -553,7 +548,7 @@ export default function CalculatorPage() {
               >
                 {visibleFlours.map(f => (
                   <option key={f.id} value={f.id}>
-                    {f.name} {f.brand ? `(${f.brand})` : ''} — {f.wIndex ? `W ${f.wIndex}` : 'Bezlepková'} | P/L: {f.elasticityPL || '—'} | Bílkoviny: {f.proteinPercentage}%
+                    {f.name} {f.brand ? `(${f.brand})` : ''} — {f.wIndex ? `W ${f.wIndex}` : t('calculator.glutenFree')} | P/L: {f.elasticityPL || '—'} | {t('calculator.protein')}: {f.proteinPercentage}%
                   </option>
                 ))}
               </select>
@@ -563,25 +558,25 @@ export default function CalculatorPage() {
             {currentFlour && (
               <div className="p-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
                 <div>
-                  <span className="text-[10px] text-[var(--color-text-muted)] block">Síla</span>
+                  <span className="text-[10px] text-[var(--color-text-muted)] block">{t('calculator.flourStats.strength')}</span>
                   <span className="font-mono font-bold text-[var(--color-text-main)]">
-                    {currentFlour.wIndex ? `W ${currentFlour.wIndex}` : 'Bezlepková'}
+                    {currentFlour.wIndex ? `W ${currentFlour.wIndex}` : t('calculator.glutenFree')}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-[var(--color-text-muted)] block">Elasticita P/L</span>
+                  <span className="text-[10px] text-[var(--color-text-muted)] block">{t('calculator.flourStats.elasticity')}</span>
                   <span className="font-mono font-bold text-[var(--color-text-main)]">
                     {currentFlour.elasticityPL || 'N/A'}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-[var(--color-text-muted)] block">Dop. hydratace</span>
+                  <span className="text-[10px] text-[var(--color-text-muted)] block">{t('calculator.flourStats.hydration')}</span>
                   <span className="font-mono font-bold text-[var(--color-text-main)]">
                     {currentFlour.minHydration}–{currentFlour.maxHydration} %
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-[var(--color-text-muted)] block">Zrání</span>
+                  <span className="text-[10px] text-[var(--color-text-muted)] block">{t('calculator.flourStats.maturation')}</span>
                   <span className="font-bold text-[var(--color-text-main)] truncate block">
                     {currentFlour.recommendedFermentationHours}
                   </span>
@@ -593,7 +588,7 @@ export default function CalculatorPage() {
           {/* Section 3: Quantities & Hydration */}
           <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs space-y-4">
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] block">
-              03 • Počet pizz a hydratace
+              03 • {t('calculator.sections.quantities')}
             </span>
 
             {/* Pizzas Count */}
@@ -603,7 +598,7 @@ export default function CalculatorPage() {
                   {t('calculator.pizzasCount')}
                 </label>
                 <span className="text-xs font-mono font-bold text-[var(--color-primary)]">
-                  {pizzasCount} ks
+                  {pizzasCount} {t('common.pieces')}
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -692,7 +687,7 @@ export default function CalculatorPage() {
           {/* Section 4: Yeast, Salt & Fats */}
           <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs space-y-4">
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] block">
-              04 • Droždí, sůl a doplňky
+              04 • {t('calculator.sections.yeast')}
             </span>
 
             {/* Yeast Type Buttons */}
@@ -702,10 +697,10 @@ export default function CalculatorPage() {
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
-                  { id: 'fresh', label: 'Čerstvé droždí', sub: '1.0×' },
-                  { id: 'instant_dry', label: 'Instantní sušené', sub: '0.33×' },
-                  { id: 'active_dry', label: 'Aktivní sušené', sub: '0.5×' },
-                  { id: 'sourdough', label: 'Kvásek', sub: '15 %' },
+                  { id: 'fresh', label: t('calculator.yeastShort.fresh'), sub: '1.0×' },
+                  { id: 'instant_dry', label: t('calculator.yeastShort.instant_dry'), sub: '0.33×' },
+                  { id: 'active_dry', label: t('calculator.yeastShort.active_dry'), sub: '0.5×' },
+                  { id: 'sourdough', label: t('calculator.yeastShort.sourdough'), sub: '15 %' },
                 ].map(item => (
                   <button
                     key={item.id}
@@ -791,7 +786,7 @@ export default function CalculatorPage() {
           {/* Section 5: Fermentation Schedule */}
           <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] block">
-              05 • Teploty a plán kynutí
+              05 • {t('calculator.sections.fermentation')}
             </span>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -825,7 +820,7 @@ export default function CalculatorPage() {
                     onChange={e => setHoursRoom(Number(e.target.value))}
                     className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                   />
-                  <span className="text-xs text-[var(--color-text-muted)]">hod</span>
+                  <span className="text-xs text-[var(--color-text-muted)]">{t('common.hours')}</span>
                 </div>
               </div>
 
@@ -842,13 +837,13 @@ export default function CalculatorPage() {
                     onChange={e => setHoursCold(Number(e.target.value))}
                     className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                   />
-                  <span className="text-xs text-[var(--color-text-muted)]">hod</span>
+                  <span className="text-xs text-[var(--color-text-muted)]">{t('common.hours')}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Section 06: Typ trouby a pečení */}
+          {/* Section 06: Oven type & baking */}
           <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs space-y-3.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-primary)]">
@@ -861,9 +856,9 @@ export default function CalculatorPage() {
 
             <div className="grid grid-cols-3 gap-2.5">
               {[
-                { id: 'home', label: 'Domácí trouba', icon: PixelHomeOvenIcon, defTemp: 250, min: 200, max: 275, time: '6–8 min' },
-                { id: 'dedicated', label: 'Pizza trouba', icon: PixelPizzaOvenIcon, defTemp: 430, min: 350, max: 470, time: '90–120 s' },
-                { id: 'wood', label: 'Pec na dřevo', icon: PixelWoodOvenIcon, defTemp: 485, min: 400, max: 500, time: '60–90 s' },
+                { id: 'home', label: t('calculator.ovens.home'), icon: PixelHomeOvenIcon, defTemp: 250, min: 200, max: 275, time: '6–8 min' },
+                { id: 'dedicated', label: t('calculator.ovens.dedicated'), icon: PixelPizzaOvenIcon, defTemp: 430, min: 350, max: 470, time: '90–120 s' },
+                { id: 'wood', label: t('calculator.ovens.wood'), icon: PixelWoodOvenIcon, defTemp: 485, min: 400, max: 500, time: '60–90 s' },
               ].map(o => {
                 const isSelected = ovenType === o.id;
                 const Icon = o.icon;
@@ -936,14 +931,14 @@ export default function CalculatorPage() {
             <div className="flex items-center justify-between pb-3 border-b border-[var(--color-border)]">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-primary)] block">
-                  Výsledná receptura
+                  {t('calculator.results.title')}
                 </span>
                 <h2 className="text-lg font-bold font-[family-name:var(--font-outfit)] text-[var(--color-text-main)]">
                   {pizzasCount} × {formatWeight(ballWeightGrams)} = {formatWeight(result.ingredients.totalDoughGrams)}
                 </h2>
               </div>
               <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-main)]">
-                {hydrationPercentage} % hydr.
+                {hydrationPercentage} % {t('calculator.results.hydrShort')}
               </span>
             </div>
 
@@ -955,31 +950,31 @@ export default function CalculatorPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[var(--color-primary)] flex items-center gap-1.5">
                       <PixelPhase1Icon className="w-4 h-4 shrink-0" />
-                      <span>{result.preferment.phase1.title}</span>
+                      <span>{t(result.preferment.phase1.title.key, result.preferment.phase1.title.params)}</span>
                     </span>
                     <span className="text-[11px] font-mono text-[var(--color-text-muted)]">
-                      {result.preferment.phase1.hydrationPercentage} % hydr.
+                      {result.preferment.phase1.hydrationPercentage} % {t('calculator.results.hydrShort')}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
                     <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Mouka</span>
+                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('calculator.flour')}</span>
                       <strong className="text-[var(--color-text-main)]">{formatWeight(result.preferment.phase1.flourGrams)}</strong>
                     </div>
                     <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Voda</span>
+                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('calculator.water')}</span>
                       <strong className="text-[var(--color-text-main)]">{formatWeight(result.preferment.phase1.waterGrams)}</strong>
                     </div>
                     <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Droždí</span>
+                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('calculator.results.yeast')}</span>
                       <strong className="text-[var(--color-text-main)]">{formatWeight(result.preferment.phase1.yeastGrams)}</strong>
                     </div>
                   </div>
 
                   <div className="text-[11px] text-[var(--color-text-muted)] space-y-1 pt-1 border-t border-[var(--color-border)]">
-                    <div>⏱ <strong>Zrání:</strong> {result.preferment.phase1.fermentationSchedule}</div>
-                    <div>💡 <strong>Příprava:</strong> {result.preferment.phase1.instructions}</div>
+                    <div>⏱ <strong>{t('calculator.results.maturation')}</strong> {t(result.preferment.phase1.fermentationSchedule.key)}</div>
+                    <div>💡 <strong>{t('calculator.results.preparation')}</strong> {t(result.preferment.phase1.instructions.key)}</div>
                   </div>
                 </div>
 
@@ -988,28 +983,28 @@ export default function CalculatorPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[var(--color-text-main)] flex items-center gap-1.5">
                       <PixelPhase2Icon className="w-4 h-4 shrink-0" />
-                      <span>{result.preferment.phase2.title}</span>
+                      <span>{t(result.preferment.phase2.title.key, result.preferment.phase2.title.params)}</span>
                     </span>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
                     <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Zbylá mouka</span>
+                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('calculator.results.remainingFlour')}</span>
                       <strong className="text-[var(--color-text-main)]">{formatWeight(result.preferment.phase2.remainingFlourGrams)}</strong>
                     </div>
                     <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Zbylá voda</span>
+                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('calculator.results.remainingWater')}</span>
                       <strong className="text-[var(--color-text-main)]">{formatWeight(result.preferment.phase2.remainingWaterGrams)}</strong>
                     </div>
                     <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">Sůl</span>
+                      <span className="text-[10px] text-[var(--color-text-muted)] font-sans block">{t('calculator.salt')}</span>
                       <strong className="text-[var(--color-text-main)]">{formatWeight(result.preferment.phase2.saltGrams)}</strong>
                     </div>
                   </div>
 
                   <div className="text-[11px] text-[var(--color-text-muted)] space-y-1 pt-1 border-t border-[var(--color-border)]">
-                    <div>❄️ <strong>Teplota:</strong> {result.preferment.phase2.waterTempAdvice}</div>
-                    <div>🥣 <strong>Postup:</strong> {result.preferment.phase2.instructions}</div>
+                    <div>❄️ <strong>{t('calculator.results.temperature')}</strong> {t(result.preferment.phase2.waterTempAdvice.key)}</div>
+                    <div>🥣 <strong>{t('calculator.results.method')}</strong> {t(result.preferment.phase2.instructions.key)}</div>
                   </div>
                 </div>
               </div>
@@ -1018,7 +1013,7 @@ export default function CalculatorPage() {
             {/* Total Batch Ingredients Table */}
             <div className="space-y-1.5 text-xs">
               <span className="text-[11px] font-semibold text-[var(--color-text-muted)] block mb-1">
-                Celkový souhrn surovin (100 % báze):
+                {t('calculator.results.totalSummary')}
               </span>
 
               <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--color-surface-subtle)]">
@@ -1071,10 +1066,10 @@ export default function CalculatorPage() {
             {/* Warnings or Validation State */}
             {result.fermentation.warnings.length > 0 && (
               <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-xs text-amber-900 dark:text-amber-200 space-y-1">
-                <span className="font-bold block">Technologické upozornění:</span>
+                <span className="font-bold block">{t('calculator.results.warningsTitle')}</span>
                 {result.fermentation.warnings.map((warn, i) => (
                   <p key={i} className="leading-snug">
-                    • {warn}
+                    • {t(warn.key, warn.params)}
                   </p>
                 ))}
               </div>
@@ -1085,24 +1080,24 @@ export default function CalculatorPage() {
               <div className="flex items-center justify-between font-bold text-[var(--color-text-main)]">
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                  <span>Časový rozvrh (celkem {hoursRoom + hoursCold} h)</span>
+                  <span>{t('calculator.results.schedule', { hours: hoursRoom + hoursCold })}</span>
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-center font-mono">
                 <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                  <span className="text-[10px] text-[var(--color-text-muted)] block font-sans">Bulk RT</span>
+                  <span className="text-[10px] text-[var(--color-text-muted)] block font-sans">{t('calculator.results.bulkRT')}</span>
                   <span className="font-bold text-[var(--color-text-main)]">
                     {result.fermentation.schedule.bulkHoursRT} h
                   </span>
                 </div>
                 <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                  <span className="text-[10px] text-[var(--color-text-muted)] block font-sans">Lednice CT</span>
+                  <span className="text-[10px] text-[var(--color-text-muted)] block font-sans">{t('calculator.results.fridgeCT')}</span>
                   <span className="font-bold text-[var(--color-text-main)]">
                     {result.fermentation.schedule.coldHoursCT} h
                   </span>
                 </div>
                 <div className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                  <span className="text-[10px] text-[var(--color-text-muted)] block font-sans">Bochánky RT</span>
+                  <span className="text-[10px] text-[var(--color-text-muted)] block font-sans">{t('calculator.results.ballsRT')}</span>
                   <span className="font-bold text-[var(--color-text-main)]">
                     {result.fermentation.schedule.ballProofHoursRT} h
                   </span>
@@ -1113,7 +1108,7 @@ export default function CalculatorPage() {
             {/* CTA Button: Save as Dough Formula */}
             <Link
               href={`/doughs?save=true&name=${encodeURIComponent(
-                `${activePreset.name} (${hydrationPercentage} %)`
+                `${presetName(activePreset.id)} (${hydrationPercentage} %)`
               )}&hydration=${hydrationPercentage}&flourId=${selectedFlourId}&pizzas=${pizzasCount}&weight=${ballWeightGrams}&salt=${saltPercentage}&oil=${oilPercentage}&sugar=${sugarPercentage}&rt=${hoursRoom}&ct=${hoursCold}&method=${method}&pref=${prefermentPct}&style=${activePreset.id}`}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-[var(--color-primary-contrast)] font-semibold text-xs shadow-xs transition-colors cursor-pointer text-center"
             >

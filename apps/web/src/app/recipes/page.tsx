@@ -9,8 +9,28 @@ import { DoughItem } from '@/types/dough';
 import { Search, Plus, Edit2, Trash2, BookOpen, Flame, ChevronDown, ChevronUp, Utensils, ChefHat } from 'lucide-react';
 import Link from 'next/link';
 
+const STAGE_KEYS: Record<string, string> = {
+  'základ': 'base',
+  base: 'base',
+  'před pečením': 'beforeBaking',
+  'before baking': 'beforeBaking',
+  'po upečení': 'afterBaking',
+  'po pečení': 'afterBaking',
+  'after baking': 'afterBaking',
+};
+
 export default function RecipesPage() {
   const { t } = useAppLocale();
+  const styleLabel = (style: string) => {
+    const key = `recipes.style.${style}`;
+    const label = t(key);
+    return label === key ? style : label;
+  };
+  // Stages are stored as free text; translate the known ones (Czech or English) for display.
+  const stageLabel = (stage: string) => {
+    const key = STAGE_KEYS[stage.trim().toLowerCase()];
+    return key ? t(`recipes.stages.${key}`) : stage;
+  };
   const [recipes, setRecipes] = React.useState<RecipeItem[]>(PRESET_RECIPES);
   const [doughs, setDoughs] = React.useState<DoughItem[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -31,11 +51,7 @@ export default function RecipesPage() {
   const [formPrepTime, setFormPrepTime] = React.useState(10);
   const [formBakeTemp, setFormBakeTemp] = React.useState(450);
   const [formBakeSeconds, setFormBakeSeconds] = React.useState(75);
-  const [formIngredients, setFormIngredients] = React.useState<RecipeIngredient[]>([
-    { name: 'Sugo San Marzano', amount: '80 g', stage: 'základ' },
-    { name: 'Mozzarella Fior di Latte', amount: '90 g', stage: 'před pečením' },
-    { name: 'Čerstvá bazalka', amount: '4 lístky', stage: 'po upečení' },
-  ]);
+  const [formIngredients, setFormIngredients] = React.useState<RecipeIngredient[]>([]);
   const [formInstructionsText, setFormInstructionsText] = React.useState('');
 
   const loadData = React.useCallback(async () => {
@@ -64,12 +80,12 @@ export default function RecipesPage() {
     setFormBakeTemp(450);
     setFormBakeSeconds(75);
     setFormIngredients([
-      { name: 'Sugo San Marzano D.O.P.', amount: '80 g', stage: 'základ' },
-      { name: 'Fior di Latte', amount: '90 g', stage: 'před pečením' },
-      { name: 'Čerstvá bazalka', amount: '5 lístků', stage: 'po upečení' },
-      { name: 'Extra panenský olivový olej', amount: '1 lžíce', stage: 'po upečení' },
+      { name: 'Sugo San Marzano D.O.P.', amount: '80 g', stage: t('recipes.stages.base') },
+      { name: 'Fior di Latte', amount: '90 g', stage: t('recipes.stages.beforeBaking') },
+      { name: t('recipes.defaults.basil'), amount: t('recipes.defaults.basilAmount'), stage: t('recipes.stages.afterBaking') },
+      { name: t('recipes.defaults.oil'), amount: t('recipes.defaults.oilAmount'), stage: t('recipes.stages.afterBaking') },
     ]);
-    setFormInstructionsText('Roztáhněte těsto.\nNaneste sugo a mozzarellu.\nPečte v peci 75 sekund při 450 °C.\nDozdobte bazalkou a olejem.');
+    setFormInstructionsText(t('recipes.defaults.instructions'));
     setModalOpen(true);
   };
 
@@ -83,13 +99,13 @@ export default function RecipesPage() {
     setFormPrepTime(recipe.prepTimeMinutes);
     setFormBakeTemp(recipe.bakeTemperature);
     setFormBakeSeconds(recipe.bakeTimeSeconds);
-    setFormIngredients(recipe.ingredients.length > 0 ? recipe.ingredients : [{ name: '', amount: '', stage: 'základ' }]);
+    setFormIngredients(recipe.ingredients.length > 0 ? recipe.ingredients : [{ name: '', amount: '', stage: t('recipes.stages.base') }]);
     setFormInstructionsText((recipe.instructions || []).join('\n'));
     setModalOpen(true);
   };
 
   const addIngredientRow = () => {
-    setFormIngredients(prev => [...prev, { name: '', amount: '', stage: 'před pečením' }]);
+    setFormIngredients(prev => [...prev, { name: '', amount: '', stage: t('recipes.stages.beforeBaking') }]);
   };
 
   const removeIngredientRow = (idx: number) => {
@@ -205,8 +221,8 @@ export default function RecipesPage() {
       ) : recipes.length === 0 ? (
         <div className="py-12 text-center rounded-xl border border-[var(--color-border)] p-8">
           <BookOpen className="w-10 h-10 mx-auto text-[var(--color-text-muted)] mb-2" />
-          <p className="text-sm font-semibold text-[var(--color-text-main)]">Nenalezeny žádné recepty</p>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">Zkuste upravit vyhledávání nebo přidat nový recept.</p>
+          <p className="text-sm font-semibold text-[var(--color-text-main)]">{t('recipes.empty')}</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">{t('recipes.emptyHint')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -231,15 +247,15 @@ export default function RecipesPage() {
                         {recipe.name}
                       </h3>
                       <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mt-0.5">
-                        <span className="capitalize">{recipe.pizzaStyle}</span>
+                        <span>{styleLabel(recipe.pizzaStyle)}</span>
                         {recipe.doughName && (
                           <>
                             <span>•</span>
-                            <span className="text-[var(--color-text-main)] font-medium">Těsto: {recipe.doughName}</span>
+                            <span className="text-[var(--color-text-main)] font-medium">{t('recipes.doughLabel')}: {recipe.doughName}</span>
                           </>
                         )}
                         <span>•</span>
-                        <span>{recipe.ingredients.length} surovin</span>
+                        <span>{t('recipes.ingredientCount', { count: recipe.ingredients.length })}</span>
                       </div>
                     </div>
                   </div>
@@ -269,21 +285,21 @@ export default function RecipesPage() {
                     {/* Quick Specs Bar */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] block">Teplota pečení</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">{t('baking.temperature')}</span>
                         <strong className="font-mono text-sm text-[var(--color-text-main)]">{recipe.bakeTemperature} °C</strong>
                       </div>
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] block">Doba pečení</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">{t('recipes.bakeTime')}</span>
                         <strong className="font-mono text-sm text-[var(--color-text-main)]">{recipe.bakeTimeSeconds} s</strong>
                       </div>
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] block">Příprava</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">{t('recipes.prepTime')}</span>
                         <strong className="font-mono text-sm text-[var(--color-text-main)]">{recipe.prepTimeMinutes} min</strong>
                       </div>
                       <div className="p-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-                        <span className="text-[10px] text-[var(--color-text-muted)] block">Použité těsto</span>
+                        <span className="text-[10px] text-[var(--color-text-muted)] block">{t('recipes.usedDough')}</span>
                         <strong className="text-xs text-[var(--color-text-main)] truncate block">
-                          {recipe.doughName || 'Vlastní / Bez těsta'}
+                          {recipe.doughName || t('recipes.customDough')}
                         </strong>
                       </div>
                     </div>
@@ -292,7 +308,7 @@ export default function RecipesPage() {
                     <div className="p-3.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] space-y-2">
                       <span className="font-bold text-[var(--color-text-main)] block flex items-center gap-1.5">
                         <Utensils className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                        <span>Suroviny a toppingy ({recipe.ingredients.length}):</span>
+                        <span>{t('recipes.ingredientsTitle', { count: recipe.ingredients.length })}</span>
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                         {recipe.ingredients.map((ing, i) => (
@@ -305,7 +321,7 @@ export default function RecipesPage() {
                               <span className="font-mono font-bold text-[var(--color-text-main)] ml-2">{ing.amount}</span>
                               {ing.stage && (
                                 <span className="text-[10px] text-[var(--color-text-muted)] block opacity-75">
-                                  {ing.stage}
+                                  {stageLabel(ing.stage)}
                                 </span>
                               )}
                             </div>
@@ -318,7 +334,7 @@ export default function RecipesPage() {
                     {recipe.instructions && recipe.instructions.length > 0 && (
                       <div className="p-3.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] space-y-1.5">
                         <span className="font-bold text-[var(--color-text-main)] block">
-                          Postup pečení a servírování:
+                          {t('recipes.stepsTitle')}
                         </span>
                         <ol className="list-decimal list-inside space-y-1 text-[var(--color-text-muted)] leading-relaxed">
                           {recipe.instructions.map((step, idx) => (
@@ -337,7 +353,7 @@ export default function RecipesPage() {
                           className="px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] font-semibold cursor-pointer text-[var(--color-text-main)]"
                         >
                           <Edit2 className="w-3.5 h-3.5 inline mr-1" />
-                          Upravit recept
+                          {t('recipes.editRecipe')}
                         </button>
                         {!recipe.isPreset && (
                           <button
@@ -346,7 +362,7 @@ export default function RecipesPage() {
                             className="px-2.5 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-semibold cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5 inline mr-1" />
-                            Smazat
+                            {t('common.delete')}
                           </button>
                         )}
                       </div>
@@ -357,7 +373,7 @@ export default function RecipesPage() {
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] font-semibold cursor-pointer text-[var(--color-text-main)]"
                         >
                           <ChefHat className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                          <span>Zobrazit těsto →</span>
+                          <span>{t('recipes.viewDough')}</span>
                         </Link>
                       )}
                     </div>
@@ -380,14 +396,14 @@ export default function RecipesPage() {
             <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                  Název receptu *
+                  {t('recipes.form.name')} *
                 </label>
                 <input
                   type="text"
                   required
                   value={formName}
                   onChange={e => setFormName(e.target.value)}
-                  placeholder="Např. Pizza Margherita Verace"
+                  placeholder={t('recipes.form.namePlaceholder')}
                   className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
@@ -395,24 +411,24 @@ export default function RecipesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Styl pizzy
+                    {t('doughs.form.style')}
                   </label>
                   <select
                     value={formStyle}
                     onChange={e => setFormStyle(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] cursor-pointer"
                   >
-                    <option value="neapolitan">Klasická Neapolská</option>
-                    <option value="canotto">Moderní Canotto</option>
-                    <option value="roman_crispy">Římská pizza</option>
-                    <option value="glutenfree">Bezlepková pizza</option>
-                    <option value="focaccia">Focaccia</option>
+                    <option value="neapolitan">{t('recipes.style.neapolitan')}</option>
+                    <option value="canotto">{t('recipes.style.canotto')}</option>
+                    <option value="roman_crispy">{t('recipes.style.roman_crispy')}</option>
+                    <option value="glutenfree">{t('recipes.style.glutenfree')}</option>
+                    <option value="focaccia">{t('recipes.style.focaccia')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Navázané těsto (volitelné)
+                    {t('recipes.form.linkedDough')}
                   </label>
                   <select
                     value={formDoughId}
@@ -424,7 +440,7 @@ export default function RecipesPage() {
                     }}
                     className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] cursor-pointer"
                   >
-                    <option value="">Bez vazby na těsto (Vlastní)</option>
+                    <option value="">{t('recipes.noDough')}</option>
                     {doughs.map(d => (
                       <option key={d.id} value={d.id}>
                         {d.name} ({d.hydrationPercentage} %)
@@ -437,7 +453,7 @@ export default function RecipesPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Teplota pečení (°C)
+                    {t('recipes.form.bakeTemp')}
                   </label>
                   <input
                     type="number"
@@ -448,7 +464,7 @@ export default function RecipesPage() {
                 </div>
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Doba pečení (sekundy)
+                    {t('recipes.form.bakeSeconds')}
                   </label>
                   <input
                     type="number"
@@ -459,7 +475,7 @@ export default function RecipesPage() {
                 </div>
                 <div>
                   <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                    Čas přípravy (min)
+                    {t('recipes.form.prepTime')}
                   </label>
                   <input
                     type="number"
@@ -472,13 +488,13 @@ export default function RecipesPage() {
 
               <div>
                 <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                  Popis receptu
+                  {t('recipes.form.description')}
                 </label>
                 <input
                   type="text"
                   value={formDescription}
                   onChange={e => setFormDescription(e.target.value)}
-                  placeholder="Královna neapolské pizzy..."
+                  placeholder={t('recipes.form.descriptionPlaceholder')}
                   className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                 />
               </div>
@@ -487,14 +503,14 @@ export default function RecipesPage() {
               <div className="space-y-2 pt-1 border-t border-[var(--color-border)]">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-[var(--color-text-main)]">
-                    Ingredience a toppingy
+                    {t('recipes.ingredientsList')}
                   </span>
                   <button
                     type="button"
                     onClick={addIngredientRow}
                     className="text-xs text-[var(--color-primary)] hover:underline font-semibold cursor-pointer"
                   >
-                    + Přidat položku
+                    + {t('recipes.form.addItem')}
                   </button>
                 </div>
 
@@ -503,21 +519,21 @@ export default function RecipesPage() {
                     <div key={idx} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder="Název (např. Sugo San Marzano)"
+                        placeholder={t('recipes.form.itemName')}
                         value={item.name}
                         onChange={e => updateIngredientField(idx, 'name', e.target.value)}
                         className="flex-2 px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                       />
                       <input
                         type="text"
-                        placeholder="Množství (80 g)"
+                        placeholder={t('recipes.form.itemAmount')}
                         value={item.amount}
                         onChange={e => updateIngredientField(idx, 'amount', e.target.value)}
                         className="flex-1 px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
                       />
                       <input
                         type="text"
-                        placeholder="Fáze (základ/po pečení)"
+                        placeholder={t('recipes.form.itemStage')}
                         value={item.stage}
                         onChange={e => updateIngredientField(idx, 'stage', e.target.value)}
                         className="flex-1 px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)]"
@@ -536,7 +552,7 @@ export default function RecipesPage() {
 
               <div>
                 <label className="block font-semibold text-[var(--color-text-main)] mb-1">
-                  Postup pečení (jeden krok na řádek)
+                  {t('recipes.form.steps')}
                 </label>
                 <textarea
                   rows={3}

@@ -4,7 +4,8 @@
     "doughs": "Těsta",
     "recipes": "Recepty",
     "flours": "Mouky",
-    "subtitle": "Pizza & Mouka Workbench"
+    "subtitle": "Pizza & Mouka Workbench",
+    "toggle": "Přepnout navigaci"
   },
   "calculator": {
     "title": "Kalkulátor pizza těsta",
@@ -57,10 +58,88 @@
     "saveAsRecipe": "Uložit jako recept",
     "phase1Preferment": "Fáze 1: Preferment",
     "phase2Final": "Fáze 2: Finální těsto (Osvěžení)",
-    "warningHydrationHigh": "Pozor: Zvolená hydratace ({selected} %) je vyšší než doporučené maximum pro tuto mouku ({max} %). Těsto může lepit.",
-    "warningHydrationLow": "Upozornění: Zvolená hydratace ({selected} %) je pod doporučeným minimem ({min} %). Těsto bude velmi tuhé.",
-    "warningFermentationLong": "Pozor: Plánovaná doba fermentace ({hours} h) překračuje enzymatickou stabilitu mouky W {w}. Hrozí degradace lepku.",
-    "warningFermentationShort": "Tip: Mouka s vysokým W {w} vyžaduje delší zrání pro optimální stravitelnost (doporučeno {min} h)."
+    "presets": {
+      "neapolitan": "Klasická Neapol (AVPN)",
+      "contemporary": "Contemporary / Canotto",
+      "roman_pan": "Římská plech (Teglia)",
+      "gluten_free": "Bezlepková (Gluten-Free)",
+      "quick_direct": "Rychlá na dnes"
+    },
+    "phaseCount": {
+      "single": "1 fáze",
+      "double": "2 fáze (Předkvas)"
+    },
+    "methodSub": {
+      "direct": "Vše dohromady",
+      "biga": "Tuhý ({hydration} % hydr.)",
+      "poolish": "Tekutý (100 % hydr.)"
+    },
+    "bigaPrefermentHint": "Doporučeno 100 % nebo 50 % celkové mouky",
+    "poolishPrefermentHint": "Doporučeno 20–30 % (Poolish má 100 % hydrataci = 1:1 poměr mouky a vody)",
+    "sections": {
+      "flour": "Výběr mouky a síla (W)",
+      "quantities": "Počet pizz a hydratace",
+      "yeast": "Droždí, sůl a doplňky",
+      "fermentation": "Teploty a plán kynutí"
+    },
+    "manageFlours": "Spravovat mouky →",
+    "topRecommendedFor": "Top doporučené pro {style}:",
+    "glutenFree": "Bezlepková",
+    "protein": "Bílkoviny",
+    "flourStats": {
+      "strength": "Síla",
+      "elasticity": "Elasticita P/L",
+      "hydration": "Dop. hydratace",
+      "maturation": "Zrání"
+    },
+    "yeastShort": {
+      "fresh": "Čerstvé droždí",
+      "instant_dry": "Instantní sušené",
+      "active_dry": "Aktivní sušené",
+      "sourdough": "Kvásek"
+    },
+    "ovens": {
+      "home": "Domácí trouba",
+      "dedicated": "Pizza trouba",
+      "wood": "Pec na dřevo"
+    },
+    "results": {
+      "title": "Výsledná receptura",
+      "hydrShort": "hydr.",
+      "yeast": "Droždí",
+      "remainingFlour": "Zbylá mouka",
+      "remainingWater": "Zbylá voda",
+      "maturation": "Zrání:",
+      "preparation": "Příprava:",
+      "temperature": "Teplota:",
+      "method": "Postup:",
+      "totalSummary": "Celkový souhrn surovin (100 % báze):",
+      "warningsTitle": "Technologické upozornění:",
+      "schedule": "Časový rozvrh (celkem {hours} h)",
+      "bulkRT": "Bulk RT",
+      "fridgeCT": "Lednice CT",
+      "ballsRT": "Bochánky RT"
+    },
+    "phases": {
+      "bigaTitle": "Fáze 1: Biga ({pct} % mouky, {hydration} % hydr.)",
+      "bigaSchedule": "1 hodina pokojová teplota (18–20 °C) + 16–24 hodin v lednici (4–5 °C) nebo vinotéce (16–18 °C)",
+      "bigaInstructions": "Nerozvíjejte lepek! Mouku pouze zlehka promíchejte s vodou a droždím, aby vznikly hrudkovité, vzdušné kousky bez suché mouky.",
+      "finalTitle": "Fáze 2: Finální těsto (Osvěžení)",
+      "bigaFinalWater": "Použijte ledovou vodu (3–4 °C) přímo z lednice/mrazáku, aby se těsto při hnětení nezahřálo nad 23 °C.",
+      "bigaFinalInstructions": "Bigu natrhejte na kousky do mísy. Přidejte zbylou mouku a začněte hníst. Postupně pomalu přilévejte ledovou vodu (bassinage), na závěr zapracujte sůl a olej. Odpočinek 30 min, stočení do bochánků a 3–4 hodiny kynutí při pokojové teplotě před pečením.",
+      "poolishTitle": "Fáze 1: Poolish ({pct} % mouky)",
+      "poolishSchedule": "1 hodina pokojová teplota + 16–24 hodin v lednici (4 °C), dokud povrch není plný bublin",
+      "poolishInstructions": "V uzavíratelné dóze rozmíchejte mouku, vodu a špetku droždí do konzistence hladkého palačinkového těstíčka.",
+      "poolishFinalWater": "Použijte studenou vodu z lednice pro udržení ideální teploty těsta.",
+      "poolishFinalInstructions": "Bublající poolish vlijte k zbývající mouce a začněte hníst. Přilévejte zbývající vodu, přidejte sůl a olej. Hněťte 10–12 minut do hedvábné tažnosti. Nechte 40 minut odpočinout, navažte bochánky a nechte 2–3 hodiny dokynout před pečením."
+    },
+    "warnings": {
+      "hydrationHigh": "Zvolená hydratace ({hydration} %) překračuje doporučené maximum pro mouku W {w} ({max} %). Těsto může lepit a ztrácet tvar.",
+      "hydrationLow": "Zvolená hydratace ({hydration} %) je nižší než doporučené minimum pro mouku W {w} ({min} %).",
+      "fermentationLong": "Doba fermentace ({hours} h) je příliš dlouhá pro mouku W {w} (doporučeno max {max} h). Hrozí degradace lepku.",
+      "fermentationShort": "Mouka se silou W {w} potřebuje delší zrání (alespoň {min} h) pro optimální rozklad škrobů a lehkou stravitelnost.",
+      "glutenFreeDry": "Bezlepková směs vyžaduje vysokou hydrataci (80–85 %). Při {hydration} % bude těsto příliš suché."
+    }
   },
   "flours": {
     "title": "Katalog a registr mouk",
@@ -107,7 +186,36 @@
       "isGlutenFree": "Jedná se o bezlepkovou směs",
       "cancel": "Zrušit",
       "save": "Uložit mouku",
-      "close": "Zavřít"
+      "close": "Zavřít",
+      "namePlaceholder": "Např. Caputo Nuvola Super",
+      "brandPlaceholder": "Např. Mulino Caputo",
+      "fermentationPlaceholder": "24–48 h (chlad)",
+      "notesPlaceholder": "Popis, doporučení, vhodné receptury...",
+      "recommendedFor": "Top doporučená mouka pro pizza styly:"
+    },
+    "reference": {
+      "title": "Referenční indexy síly mouky (W Index)",
+      "weak": "Slabá • 50–55 % hydr. (2–4 h)",
+      "medium": "Střední • 55–62 % (8–14 h)",
+      "strong": "Silná • 60–70 % (24–48 h)",
+      "manitoba": "Manitoba • 70–85 % (48–72 h)",
+      "glutenFree": "Bezlepková • 80–85 % hydr."
+    },
+    "empty": "Žádná mouka neodpovídá zadaným filtrům.",
+    "styleTags": {
+      "neapolitan": "Neapol (AVPN)",
+      "contemporary": "Canotto",
+      "roman_pan": "Teglia",
+      "gluten_free": "Bezlepková",
+      "quick_direct": "Rychlá"
+    },
+    "shownInCalculator": "Zobrazuje se v kalkulátoru",
+    "hiddenInCalculator": "Skryto v kalkulátoru",
+    "detail": {
+      "strength": "Síla W",
+      "fermentation": "Doporučený čas zrání těsta",
+      "notes": "Technologické poznámky a využití",
+      "useInCalculator": "Použít v kalkulátoru"
     }
   },
   "doughs": {
@@ -123,6 +231,36 @@
       "roman_crispy": "Římská plech (Teglia)",
       "glutenfree": "Bezlepková",
       "focaccia": "Focaccia"
+    },
+    "empty": "Nenalezena žádná těsta",
+    "emptyHint": "Zkuste upravit vyhledávání.",
+    "instructionsTitle": "Technologický postup přípravy:",
+    "openInCalculator": "Otevřít v kalkulátoru",
+    "stats": {
+      "hydration": "Hydratace",
+      "salt": "Sůl",
+      "yeast": "Droždí",
+      "oil": "Olej",
+      "rt": "RT kynutí",
+      "ct": "Chlad CT"
+    },
+    "form": {
+      "name": "Název těsta",
+      "namePlaceholder": "Např. Moje Biga 70%",
+      "style": "Styl pizzy",
+      "method": "Metoda prefermentu",
+      "balls": "Počet bochánků",
+      "rt": "RT kynutí (h)",
+      "ct": "Chlad CT (h)",
+      "description": "Popis",
+      "descriptionPlaceholder": "Stručný popis chuti a těsta...",
+      "instructions": "Instrukce k přípravě (jeden krok na řádek)"
+    },
+    "defaults": {
+      "newName": "Moje nové těsto",
+      "recommendedFlour": "Doporučená mouka",
+      "instructionsFromCalculator": "Rozpusťte sůl ve vodě.\nPřidejte mouku a droždí.\nHněťte do sametové struktury.\nNechte zrát podle plánu.",
+      "instructions": "Rozpusťte sůl ve studené vodě.\nPřidejte mouku a droždí.\nHněťte do hladka.\nUložte do lednice na 16 hodin."
     }
   },
   "recipes": {
@@ -143,7 +281,45 @@
     "noDough": "Bez vazby na těsto / Vlastní",
     "bakeSettings": "Parametry pečení",
     "ingredientsList": "Ingredience a toppingy",
-    "instructions": "Postup pečení"
+    "instructions": "Postup pečení",
+    "empty": "Nenalezeny žádné recepty",
+    "emptyHint": "Zkuste upravit vyhledávání nebo přidat nový recept.",
+    "doughLabel": "Těsto",
+    "ingredientCount": "{count} surovin",
+    "bakeTime": "Doba pečení",
+    "prepTime": "Příprava",
+    "usedDough": "Použité těsto",
+    "customDough": "Vlastní / Bez těsta",
+    "ingredientsTitle": "Suroviny a toppingy ({count}):",
+    "stepsTitle": "Postup pečení a servírování:",
+    "viewDough": "Zobrazit těsto →",
+    "stages": {
+      "base": "základ",
+      "beforeBaking": "před pečením",
+      "afterBaking": "po upečení"
+    },
+    "form": {
+      "name": "Název receptu",
+      "namePlaceholder": "Např. Pizza Margherita Verace",
+      "linkedDough": "Navázané těsto (volitelné)",
+      "bakeTemp": "Teplota pečení (°C)",
+      "bakeSeconds": "Doba pečení (sekundy)",
+      "prepTime": "Čas přípravy (min)",
+      "description": "Popis receptu",
+      "descriptionPlaceholder": "Královna neapolské pizzy...",
+      "addItem": "Přidat položku",
+      "itemName": "Název (např. Sugo San Marzano)",
+      "itemAmount": "Množství (80 g)",
+      "itemStage": "Fáze (základ/po upečení)",
+      "steps": "Postup pečení (jeden krok na řádek)"
+    },
+    "defaults": {
+      "basil": "Čerstvá bazalka",
+      "basilAmount": "5 lístků",
+      "oil": "Extra panenský olivový olej",
+      "oilAmount": "1 lžíce",
+      "instructions": "Roztáhněte těsto.\nNaneste sugo a mozzarellu.\nPečte v peci 75 sekund při 450 °C.\nDozdobte bazalkou a olejem."
+    }
   },
   "common": {
     "loading": "Načítání...",
@@ -182,6 +358,16 @@
     "fahrenheit": "Fahrenheit (°F)",
     "kelvin": "Kelvin (K) — Termodynamický purismus 🔬",
     "metric": "Metrický (g, kg)",
-    "imperial": "Imperiální (oz, lbs)"
+    "imperial": "Imperiální (oz, lbs)",
+    "celsiusDesc": "Tradiční evropský standard pro pečení",
+    "fahrenheitDesc": "Americké a britské receptury",
+    "kelvinDesc": "273.15 K = 0 °C (pro fyziky a pizza geeks)",
+    "metricDesc": "Gramy & Kilogramy",
+    "imperialDesc": "Unce & Libry (oz / lbs)"
+  },
+  "theme": {
+    "light": "Světlý",
+    "dark": "Tmavý",
+    "toggle": "Přepnout motiv"
   }
 }

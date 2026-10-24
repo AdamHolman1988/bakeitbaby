@@ -1,6 +1,12 @@
 export type YeastType = 'fresh' | 'instant_dry' | 'active_dry' | 'sourdough';
 export type DoughMethod = 'direct' | 'biga' | 'poolish';
 
+/** Translation key + params, resolved by the UI via t(key, params). */
+export interface LocalizedMessage {
+  key: string;
+  params?: Record<string, string | number>;
+}
+
 export interface DoughInput {
   method?: DoughMethod; // default 'direct'
   prefermentPercentage?: number; // e.g. 100 for 100% biga, 30 for 30% poolish
@@ -34,24 +40,24 @@ export interface PrefermentPhase {
   method: DoughMethod;
   prefermentPercentage: number;
   phase1: {
-    title: string;
+    title: LocalizedMessage;
     flourGrams: number;
     waterGrams: number;
     yeastGrams: number;
     hydrationPercentage: number;
-    fermentationSchedule: string;
-    instructions: string;
+    fermentationSchedule: LocalizedMessage;
+    instructions: LocalizedMessage;
   };
   phase2: {
-    title: string;
+    title: LocalizedMessage;
     remainingFlourGrams: number;
     remainingWaterGrams: number;
     saltGrams: number;
     oilGrams: number;
     sugarGrams: number;
     additionalYeastGrams: number;
-    waterTempAdvice: string;
-    instructions: string;
+    waterTempAdvice: LocalizedMessage;
+    instructions: LocalizedMessage;
   };
 }
 
@@ -63,7 +69,7 @@ export interface FermentationAdvice {
   idealTotalHoursMax: number;
   isHydrationOk: boolean;
   isFermentationOk: boolean;
-  warnings: string[];
+  warnings: LocalizedMessage[];
   schedule: {
     bulkHoursRT: number;
     coldHoursCT: number;
@@ -158,30 +164,30 @@ export function calculateDough(input: DoughInput): DoughCalculationResult {
       method: 'biga',
       prefermentPercentage: prefPct,
       phase1: {
-        title: `Fáze 1: Biga (${prefPct} % mouky, ${bigaHydr} % hydr.)`,
+        title: { key: 'calculator.phases.bigaTitle', params: { pct: prefPct, hydration: bigaHydr } },
         flourGrams: bigaFlour,
         waterGrams: bigaWater,
         yeastGrams: bigaYeast,
         hydrationPercentage: bigaHydr,
-        fermentationSchedule: '1 hodina pokojová teplota (18–20 °C) + 16–24 hodin v lednici (4–5 °C) nebo vinotéce (16–18 °C)',
-        instructions: 'Nerozvíjejte lepek! Mouku pouze zlehka promíchejte s vodou a droždím, aby vznikly hrudkovité, vzdušné kousky bez suché mouky.',
+        fermentationSchedule: { key: 'calculator.phases.bigaSchedule' },
+        instructions: { key: 'calculator.phases.bigaInstructions' },
       },
       phase2: {
-        title: 'Fáze 2: Finální těsto (Osvěžení)',
+        title: { key: 'calculator.phases.finalTitle' },
         remainingFlourGrams: remFlour,
         remainingWaterGrams: remWater,
         saltGrams,
         oilGrams,
         sugarGrams,
         additionalYeastGrams: 0,
-        waterTempAdvice: 'Použijte ledovou vodu (3–4 °C) přímo z lednice/mrazáku, aby se těsto při hnětení nezahřálo nad 23 °C.',
-        instructions: 'Bigu natrhejte na kousky do mísy. Přidejte zbylou mouku a začněte hníst. Postupně pomalu přilévejte ledovou vodu (bassinage), na závěr zapracujte sůl a olej. Odpočinek 30 min, stočení do bochánků a 3–4 hodiny kynutí při pokojové teplotě před pečením.',
+        waterTempAdvice: { key: 'calculator.phases.bigaFinalWater' },
+        instructions: { key: 'calculator.phases.bigaFinalInstructions' },
       },
     };
   } else if (method === 'poolish') {
     const prefPct = input.prefermentPercentage ?? 30; // default 30% poolish
     const poolishFlour = Math.round((flourGrams * (prefPct / 100)) * 10) / 10;
-    const poolishWater = poolishFlour; // 100% hydration = 1:1 poměr mouky a vody
+    const poolishWater = poolishFlour; // 100% hydration = 1:1 flour to water
     const poolishYeast = Math.max(0.1, Math.round((poolishFlour * 0.002 * YEAST_RATIOS[input.yeastType]) * 100) / 100);
 
     const remFlour = Math.max(0, Math.round((flourGrams - poolishFlour) * 10) / 10);
@@ -191,24 +197,24 @@ export function calculateDough(input: DoughInput): DoughCalculationResult {
       method: 'poolish',
       prefermentPercentage: prefPct,
       phase1: {
-        title: `Fáze 1: Poolish (${prefPct} % mouky)`,
+        title: { key: 'calculator.phases.poolishTitle', params: { pct: prefPct } },
         flourGrams: poolishFlour,
         waterGrams: poolishWater,
         yeastGrams: poolishYeast,
         hydrationPercentage: 100,
-        fermentationSchedule: '1 hodina pokojová teplota + 16–24 hodin v lednici (4 °C), dokud povrch není plný bublin',
-        instructions: 'V uzavíratelné dóze rozmíchejte mouku, vodu a špetku droždí do konzistence hladkého palačinkového těstíčka.',
+        fermentationSchedule: { key: 'calculator.phases.poolishSchedule' },
+        instructions: { key: 'calculator.phases.poolishInstructions' },
       },
       phase2: {
-        title: 'Fáze 2: Finální těsto (Osvěžení)',
+        title: { key: 'calculator.phases.finalTitle' },
         remainingFlourGrams: remFlour,
         remainingWaterGrams: remWater,
         saltGrams,
         oilGrams,
         sugarGrams,
         additionalYeastGrams: 0,
-        waterTempAdvice: 'Použijte studenou vodu z lednice pro udržení ideální teploty těsta.',
-        instructions: 'Bublající poolish vlijte k zbývající mouce a začněte hníst. Přilévejte zbývající vodu, přidejte sůl a olej. Hněťte 10–12 minut do hedvábné tažnosti. Nechte 40 minut odpočinout, navažte bochánky a nechte 2–3 hodiny dokynout před pečením.',
+        waterTempAdvice: { key: 'calculator.phases.poolishFinalWater' },
+        instructions: { key: 'calculator.phases.poolishFinalInstructions' },
       },
     };
   }
@@ -254,24 +260,24 @@ export function calculateDough(input: DoughInput): DoughCalculationResult {
     idealHoursMax = 72;
   }
 
-  const warnings: string[] = [];
+  const warnings: LocalizedMessage[] = [];
   const isHydrationOk = hydration >= idealHydrMin - 2 && hydration <= idealHydrMax + 3;
 
   if (!isGlutenFree && w !== null && w !== undefined) {
     if (hydration > idealHydrMax + 3) {
-      warnings.push(`Zvolená hydratace (${hydration} %) překračuje doporučené maximum pro mouku W ${w} (${idealHydrMax} %). Těsto může lepit a ztrácet tvar.`);
+      warnings.push({ key: 'calculator.warnings.hydrationHigh', params: { hydration, w, max: idealHydrMax } });
     } else if (hydration < idealHydrMin - 2) {
-      warnings.push(`Zvolená hydratace (${hydration} %) je nižší než doporučené minimum pro mouku W ${w} (${idealHydrMin} %).`);
+      warnings.push({ key: 'calculator.warnings.hydrationLow', params: { hydration, w, min: idealHydrMin } });
     }
 
     if (totalHours > idealHoursMax * 1.5) {
-      warnings.push(`Doba fermentace (${totalHours} h) je příliš dlouhá pro mouku W ${w} (doporučeno max ${idealHoursMax} h). Hrozí degradace lepku.`);
+      warnings.push({ key: 'calculator.warnings.fermentationLong', params: { hours: totalHours, w, max: idealHoursMax } });
     } else if (totalHours < idealHoursMin * 0.7 && w >= 270) {
-      warnings.push(`Mouka se silou W ${w} potřebuje delší zrání (alespoň ${idealHoursMin} h) pro optimální rozklad škrobů a lehkou stravitelnost.`);
+      warnings.push({ key: 'calculator.warnings.fermentationShort', params: { w, min: idealHoursMin } });
     }
   } else {
     if (hydration < 75) {
-      warnings.push(`Bezlepková směs vyžaduje vysokou hydrataci (80–85 %). Při ${hydration} % bude těsto příliš suché.`);
+      warnings.push({ key: 'calculator.warnings.glutenFreeDry', params: { hydration } });
     }
   }
 

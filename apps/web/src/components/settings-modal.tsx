@@ -17,7 +17,7 @@ export function SettingsModal() {
         onClick={() => setOpen(true)}
         className="p-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-surface-hover)] transition-colors cursor-pointer"
         title={t('settings.title')}
-        aria-label="Settings"
+        aria-label={t('settings.title')}
       >
         <SettingsIcon className="w-4 h-4" />
       </button>
@@ -58,9 +58,9 @@ export function SettingsModal() {
               </label>
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { id: 'celsius', label: t('settings.celsius'), desc: 'Tradiční evropský standard pro pečení' },
-                  { id: 'fahrenheit', label: t('settings.fahrenheit'), desc: 'Americké a britské receptury' },
-                  { id: 'kelvin', label: t('settings.kelvin'), desc: '273.15 K = 0 °C (pro fyziky a pizza geeks)' },
+                  { id: 'celsius', label: t('settings.celsius'), desc: t('settings.celsiusDesc') },
+                  { id: 'fahrenheit', label: t('settings.fahrenheit'), desc: t('settings.fahrenheitDesc') },
+                  { id: 'kelvin', label: t('settings.kelvin'), desc: t('settings.kelvinDesc') },
                 ].map(item => {
                   const active = tempUnit === item.id;
                   return (
@@ -90,8 +90,8 @@ export function SettingsModal() {
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'metric', label: t('settings.metric'), sub: 'Gramy & Kilogramy' },
-                  { id: 'imperial', label: t('settings.imperial'), sub: 'Unce & Libry (oz / lbs)' },
+                  { id: 'metric', label: t('settings.metric'), sub: t('settings.metricDesc') },
+                  { id: 'imperial', label: t('settings.imperial'), sub: t('settings.imperialDesc') },
                 ].map(item => {
                   const active = weightUnit === item.id;
                   return (

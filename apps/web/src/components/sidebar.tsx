@@ -64,7 +64,7 @@ export function Sidebar() {
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
             className="p-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text-main)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
-            aria-label="Toggle navigation"
+            aria-label={t('nav.toggle')}
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>

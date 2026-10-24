@@ -3,8 +3,12 @@
 import * as React from 'react';
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
+import { useAppLocale } from '@/context/locale-context';
 
-export function ThemeToggle({ labelLight = 'Světlý', labelDark = 'Tmavý' }: { labelLight?: string; labelDark?: string }) {
+export function ThemeToggle() {
+  const { t } = useAppLocale();
+  const labelLight = t('theme.light');
+  const labelDark = t('theme.dark');
   const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
@@ -26,7 +30,7 @@ export function ThemeToggle({ labelLight = 'Světlý', labelDark = 'Tmavý' }: {
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] text-[var(--color-text-main)] transition-colors cursor-pointer"
       title={isDark ? labelLight : labelDark}
-      aria-label="Toggle theme"
+      aria-label={t('theme.toggle')}
     >
       {isDark ? (
         <>
