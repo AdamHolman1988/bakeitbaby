@@ -8,7 +8,7 @@ import { Search, Plus, Edit2, Trash2, Calculator, ChevronDown, ChevronUp, ChefHa
 import Link from 'next/link';
 
 export default function DoughsPage() {
-  const { t } = useAppLocale();
+  const { t, locale } = useAppLocale();
   const styleLabel = (style: string) => {
     const key = `doughs.style.${style}`;
     const label = t(key);
@@ -43,10 +43,10 @@ export default function DoughsPage() {
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
-    const data = await fetchDoughs(searchTerm, styleFilter);
+    const data = await fetchDoughs(searchTerm, styleFilter, locale);
     setDoughs(data);
     setLoading(false);
-  }, [searchTerm, styleFilter]);
+  }, [searchTerm, styleFilter, locale]);
 
   React.useEffect(() => {
     loadData();
@@ -146,7 +146,7 @@ export default function DoughsPage() {
       instructions,
     };
 
-    await saveDough(payload);
+    await saveDough(payload, locale);
     setModalOpen(false);
     loadData();
   };

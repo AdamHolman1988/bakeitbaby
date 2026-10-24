@@ -1,12 +1,18 @@
 import { FlourItem, PRESET_FLOURS } from '@/types/flour';
+import type { Locale } from '@/context/locale-context';
+import { apiLocale, localizePreset } from '@/i18n/content';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8001/api';
 
-export async function fetchFlours(search?: string, strength?: string): Promise<FlourItem[]> {
+const TRANSLATABLE_FIELDS: (keyof FlourItem)[] = ['name', 'brand', 'recommendedFermentationHours', 'usageNotes'];
+
+export async function fetchFlours(search?: string, strength?: string, locale?: Locale): Promise<FlourItem[]> {
   try {
     const url = new URL(`${API_BASE_URL}/flours`);
     if (search) url.searchParams.set('search', search);
     if (strength && strength !== 'all') url.searchParams.set('strength', strength);
+    const lang = apiLocale(locale);
+    if (lang) url.searchParams.set('locale', lang);
 
     const res = await fetch(url.toString(), { next: { revalidate: 0 } });
     if (res.ok) {
@@ -23,7 +29,8 @@ export async function fetchFlours(search?: string, strength?: string): Promise<F
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('bakeitbaby_custom_flours');
     const customFlours: FlourItem[] = stored ? JSON.parse(stored) : [];
-    let combined = [...PRESET_FLOURS, ...customFlours];
+    const presets = PRESET_FLOURS.map(f => localizePreset(f, TRANSLATABLE_FIELDS, locale));
+    let combined = [...presets, ...customFlours];
 
     if (search && search.trim() !== '') {
       const term = search.toLowerCase().trim();
@@ -42,13 +49,15 @@ export async function fetchFlours(search?: string, strength?: string): Promise<F
     return combined;
   }
 
-  return PRESET_FLOURS;
+  return PRESET_FLOURS.map(f => localizePreset(f, TRANSLATABLE_FIELDS, locale));
 }
 
-export async function saveFlour(flour: Partial<FlourItem>): Promise<FlourItem> {
+export async function saveFlour(flour: Partial<FlourItem>, locale?: Locale): Promise<FlourItem> {
   try {
     const isEdit = typeof flour.id === 'number';
-    const url = isEdit ? `${API_BASE_URL}/flours/${flour.id}` : `${API_BASE_URL}/flours`;
+    const lang = apiLocale(locale);
+    const query = lang ? `?locale=${lang}` : '';
+    const url = isEdit ? `${API_BASE_URL}/flours/${flour.id}${query}` : `${API_BASE_URL}/flours${query}`;
     const method = isEdit ? 'PUT' : 'POST';
 
     const res = await fetch(url, {

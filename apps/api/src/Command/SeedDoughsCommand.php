@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\Dough;
+use App\Seed\SeedTranslator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,7 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class SeedDoughsCommand extends Command
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly SeedTranslator $translator
     ) {
         parent::__construct();
     }
@@ -212,6 +214,7 @@ final class SeedDoughsCommand extends Command
                 $existing->setFlourName($item['flourName']);
                 $existing->setInstructions($item['instructions']);
                 $existing->setIsPreset(true);
+                $existing->setTranslations(['en' => $this->translator->translateItem($item, Dough::translatableFields())]);
             } else {
                 $dough = new Dough(
                     name: $item['name'],
@@ -233,6 +236,7 @@ final class SeedDoughsCommand extends Command
                     prefermentPercentage: (float) $item['prefermentPercentage'],
                     isPreset: true
                 );
+                $dough->setTranslations(['en' => $this->translator->translateItem($item, Dough::translatableFields())]);
                 $this->entityManager->persist($dough);
             }
             $count++;

@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class Flour
 {
+    use TranslatableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
@@ -289,11 +291,19 @@ class Flour
     }
 
     /**
+     * @return list<string>
+     */
+    public static function translatableFields(): array
+    {
+        return ['name', 'brand', 'recommendedFermentationHours', 'usageNotes'];
+    }
+
+    /**
      * @return array<string, mixed>
      */
-    public function toArray(): array
+    public function toArray(?string $locale = null): array
     {
-        return [
+        return $this->localize([
             'id' => $this->id,
             'name' => $this->name,
             'brand' => $this->brand,
@@ -312,7 +322,7 @@ class Flour
             'strengthCategory' => $this->getStrengthCategory(),
             'createdAt' => $this->createdAt->format(\DateTimeInterface::ATOM),
             'updatedAt' => $this->updatedAt->format(\DateTimeInterface::ATOM),
-        ];
+        ], $locale);
     }
 
     public function getStrengthCategory(): string

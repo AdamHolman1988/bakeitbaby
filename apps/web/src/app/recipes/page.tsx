@@ -17,10 +17,12 @@ const STAGE_KEYS: Record<string, string> = {
   'po upečení': 'afterBaking',
   'po pečení': 'afterBaking',
   'after baking': 'afterBaking',
+  'před i po pečení': 'beforeAndAfterBaking',
+  'before & after baking': 'beforeAndAfterBaking',
 };
 
 export default function RecipesPage() {
-  const { t } = useAppLocale();
+  const { t, locale } = useAppLocale();
   const styleLabel = (style: string) => {
     const key = `recipes.style.${style}`;
     const label = t(key);
@@ -57,13 +59,13 @@ export default function RecipesPage() {
   const loadData = React.useCallback(async () => {
     setLoading(true);
     const [recipesData, doughsData] = await Promise.all([
-      fetchRecipes(searchTerm, styleFilter),
-      fetchDoughs(),
+      fetchRecipes(searchTerm, styleFilter, locale),
+      fetchDoughs(undefined, undefined, locale),
     ]);
     setRecipes(recipesData);
     setDoughs(doughsData);
     setLoading(false);
-  }, [searchTerm, styleFilter]);
+  }, [searchTerm, styleFilter, locale]);
 
   React.useEffect(() => {
     loadData();
@@ -141,7 +143,7 @@ export default function RecipesPage() {
       instructions,
     };
 
-    await saveRecipe(payload);
+    await saveRecipe(payload, locale);
     setModalOpen(false);
     loadData();
   };

@@ -8,7 +8,7 @@ import { Search, Plus, Edit2, Trash2, Wheat, Eye, X, Check, ArrowRight, Info } f
 import Link from 'next/link';
 
 export default function FloursPage() {
-  const { t } = useAppLocale();
+  const { t, locale } = useAppLocale();
   const [flours, setFlours] = React.useState<FlourItem[]>(PRESET_FLOURS);
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -37,10 +37,10 @@ export default function FloursPage() {
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
-    const data = await fetchFlours(searchTerm, strengthFilter);
+    const data = await fetchFlours(searchTerm, strengthFilter, locale);
     setFlours(data);
     setLoading(false);
-  }, [searchTerm, strengthFilter]);
+  }, [searchTerm, strengthFilter, locale]);
 
   React.useEffect(() => {
     loadData();
@@ -92,7 +92,7 @@ export default function FloursPage() {
       prev.map(f => (f.id === flour.id ? { ...f, showInCalculator: updatedStatus } : f))
     );
     try {
-      await saveFlour({ id: flour.id, showInCalculator: updatedStatus });
+      await saveFlour({ id: flour.id, showInCalculator: updatedStatus }, locale);
     } catch {
       loadData();
     }
@@ -118,7 +118,7 @@ export default function FloursPage() {
       recommendedForStyles: formRecommendedStyles,
     };
 
-    await saveFlour(payload);
+    await saveFlour(payload, locale);
     setModalOpen(false);
     loadData();
   };

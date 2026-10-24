@@ -296,7 +296,8 @@
     "stages": {
       "base": "base",
       "beforeBaking": "before baking",
-      "afterBaking": "after baking"
+      "afterBaking": "after baking",
+      "beforeAndAfterBaking": "before & after baking"
     },
     "form": {
       "name": "Recipe name",

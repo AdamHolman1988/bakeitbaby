@@ -108,7 +108,7 @@ const STYLE_PRESETS: StylePreset[] = [
 ];
 
 export default function CalculatorPage() {
-  const { t } = useAppLocale();
+  const { t, locale } = useAppLocale();
   const { formatTemp, formatWeight } = useSettings();
   const presetName = (id: string) => t(`calculator.presets.${id}`);
   const [flours, setFlours] = React.useState<FlourItem[]>(PRESET_FLOURS);
@@ -134,14 +134,17 @@ export default function CalculatorPage() {
   const [ovenType, setOvenType] = React.useState<'home' | 'dedicated' | 'wood'>('home');
   const [ovenTemp, setOvenTemp] = React.useState<number>(250);
 
-  // Load flours from API / fallback
+  // Load flours from API / fallback (re-fetched in the active content locale)
   React.useEffect(() => {
-    fetchFlours().then(data => {
+    fetchFlours(undefined, undefined, locale).then(data => {
       if (data && data.length > 0) {
         setFlours(data);
       }
     });
+  }, [locale]);
 
+  // Preselect a flour passed from the Flours page
+  React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const flourParam = params.get('flourId');

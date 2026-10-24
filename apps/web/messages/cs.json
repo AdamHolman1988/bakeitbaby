@@ -296,7 +296,8 @@
     "stages": {
       "base": "základ",
       "beforeBaking": "před pečením",
-      "afterBaking": "po upečení"
+      "afterBaking": "po upečení",
+      "beforeAndAfterBaking": "před i po pečení"
     },
     "form": {
       "name": "Název receptu",

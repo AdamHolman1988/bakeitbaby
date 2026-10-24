@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Flour;
+use App\Http\RequestLocale;
 use App\Repository\FlourRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,26 +30,36 @@ final class FlourController extends AbstractController
         $search = $request->query->getString('search', '');
         $strength = $request->query->getString('strength', 'all');
 
+        $locale = RequestLocale::fromRequest($request);
+
+        // Localized content isn't searchable in SQL, so translated searches are filtered below.
         $flours = $this->flourRepository->searchAndFilter(
-            search: $search !== '' ? $search : null,
+            search: $search !== '' && $locale === null ? $search : null,
             strength: $strength !== '' ? $strength : null
         );
 
+        if ($search !== '' && $locale !== null) {
+            $flours = array_values(array_filter(
+                $flours,
+                static fn (Flour $f) => $f->matchesSearch($search, $locale, ['name', 'brand', 'usageNotes'])
+            ));
+        }
+
         return new JsonResponse([
-            'data' => array_map(static fn (Flour $f) => $f->toArray(), $flours),
+            'data' => array_map(static fn (Flour $f) => $f->toArray($locale), $flours),
             'total' => count($flours),
         ]);
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id): JsonResponse
+    public function show(int $id, Request $request): JsonResponse
     {
         $flour = $this->flourRepository->find($id);
         if (!$flour instanceof Flour) {
             return new JsonResponse(['error' => 'Flour not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return new JsonResponse(['data' => $flour->toArray()]);
+        return new JsonResponse(['data' => $flour->toArray(RequestLocale::fromRequest($request))]);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
@@ -102,7 +113,7 @@ final class FlourController extends AbstractController
         $this->entityManager->persist($flour);
         $this->entityManager->flush();
 
-        return new JsonResponse(['data' => $flour->toArray()], Response::HTTP_CREATED);
+        return new JsonResponse(['data' => $flour->toArray(RequestLocale::fromRequest($request))], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
@@ -115,6 +126,14 @@ final class FlourController extends AbstractController
 
         /** @var array<string, mixed> $payload */
         $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        // Editing in a translated locale updates that translation rather than the base content.
+        $locale = RequestLocale::fromRequest($request);
+        if ($locale !== null && $flour->hasTranslation($locale)) {
+            $translatable = array_flip(Flour::translatableFields());
+            $flour->mergeTranslation($locale, array_intersect_key($payload, $translatable));
+            $payload = array_diff_key($payload, $translatable);
+        }
 
         if (isset($payload['name'])) {
             $flour->setName((string) $payload['name']);
@@ -167,7 +186,7 @@ final class FlourController extends AbstractController
 
         $this->entityManager->flush();
 
-        return new JsonResponse(['data' => $flour->toArray()]);
+        return new JsonResponse(['data' => $flour->toArray($locale)]);
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]

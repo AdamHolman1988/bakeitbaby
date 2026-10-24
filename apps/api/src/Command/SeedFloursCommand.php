@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\Flour;
+use App\Seed\SeedTranslator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,7 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class SeedFloursCommand extends Command
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly SeedTranslator $translator
     ) {
         parent::__construct();
     }
@@ -238,6 +240,7 @@ final class SeedFloursCommand extends Command
                 $existing->setShowInCalculator($item['showInCalculator']);
                 $existing->setIsGlutenFree($item['isGlutenFree']);
                 $existing->setIsPreset(true);
+                $existing->setTranslations(['en' => $this->translator->translateItem($item, Flour::translatableFields())]);
             } else {
                 $flour = new Flour(
                     name: $item['name'],
@@ -257,6 +260,7 @@ final class SeedFloursCommand extends Command
                 if ($item['wRangeMax'] !== null) {
                     $flour->setWRangeMax($item['wRangeMax']);
                 }
+                $flour->setTranslations(['en' => $this->translator->translateItem($item, Flour::translatableFields())]);
                 $this->entityManager->persist($flour);
             }
             $count++;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Recipe;
+use App\Http\RequestLocale;
 use App\Repository\RecipeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,26 +30,36 @@ final class RecipeController extends AbstractController
         $search = $request->query->getString('search', '');
         $style = $request->query->getString('style', 'all');
 
+        $locale = RequestLocale::fromRequest($request);
+
+        // Localized content isn't searchable in SQL, so translated searches are filtered below.
         $recipes = $this->recipeRepository->searchAndFilter(
-            search: $search !== '' ? $search : null,
+            search: $search !== '' && $locale === null ? $search : null,
             style: $style !== '' ? $style : null
         );
 
+        if ($search !== '' && $locale !== null) {
+            $recipes = array_values(array_filter(
+                $recipes,
+                static fn (Recipe $r) => $r->matchesSearch($search, $locale, ['name', 'description'])
+            ));
+        }
+
         return new JsonResponse([
-            'data' => array_map(static fn (Recipe $r) => $r->toArray(), $recipes),
+            'data' => array_map(static fn (Recipe $r) => $r->toArray($locale), $recipes),
             'total' => count($recipes),
         ]);
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id): JsonResponse
+    public function show(int $id, Request $request): JsonResponse
     {
         $recipe = $this->recipeRepository->find($id);
         if (!$recipe instanceof Recipe) {
             return new JsonResponse(['error' => 'Recipe not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return new JsonResponse(['data' => $recipe->toArray()]);
+        return new JsonResponse(['data' => $recipe->toArray(RequestLocale::fromRequest($request))]);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
@@ -102,7 +113,7 @@ final class RecipeController extends AbstractController
         $this->entityManager->persist($recipe);
         $this->entityManager->flush();
 
-        return new JsonResponse(['data' => $recipe->toArray()], Response::HTTP_CREATED);
+        return new JsonResponse(['data' => $recipe->toArray(RequestLocale::fromRequest($request))], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
@@ -115,6 +126,14 @@ final class RecipeController extends AbstractController
 
         /** @var array<string, mixed> $payload */
         $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        // Editing in a translated locale updates that translation rather than the base content.
+        $locale = RequestLocale::fromRequest($request);
+        if ($locale !== null && $recipe->hasTranslation($locale)) {
+            $translatable = array_flip(Recipe::translatableFields());
+            $recipe->mergeTranslation($locale, array_intersect_key($payload, $translatable));
+            $payload = array_diff_key($payload, $translatable);
+        }
 
         if (isset($payload['name'])) $recipe->setName((string) $payload['name']);
         if (isset($payload['description'])) $recipe->setDescription((string) $payload['description']);
@@ -142,7 +161,7 @@ final class RecipeController extends AbstractController
 
         $this->entityManager->flush();
 
-        return new JsonResponse(['data' => $recipe->toArray()]);
+        return new JsonResponse(['data' => $recipe->toArray($locale)]);
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]

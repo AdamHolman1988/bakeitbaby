@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\Recipe;
+use App\Seed\SeedTranslator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,7 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class SeedRecipesCommand extends Command
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly SeedTranslator $translator
     ) {
         parent::__construct();
     }
@@ -178,6 +180,7 @@ final class SeedRecipesCommand extends Command
                 $existing->setIngredients($item['ingredients']);
                 $existing->setInstructions($item['instructions']);
                 $existing->setIsPreset(true);
+                $existing->setTranslations(['en' => $this->translator->translateItem($item, Recipe::translatableFields())]);
             } else {
                 $recipe = new Recipe(
                     name: $item['name'],
@@ -191,6 +194,7 @@ final class SeedRecipesCommand extends Command
                     instructions: $item['instructions'],
                     isPreset: true
                 );
+                $recipe->setTranslations(['en' => $this->translator->translateItem($item, Recipe::translatableFields())]);
                 $this->entityManager->persist($recipe);
             }
             $count++;

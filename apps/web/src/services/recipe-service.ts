@@ -1,12 +1,18 @@
 import { RecipeItem, PRESET_RECIPES } from '@/types/recipe';
+import type { Locale } from '@/context/locale-context';
+import { apiLocale, localizePreset } from '@/i18n/content';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8001/api';
 
-export async function fetchRecipes(search?: string, style?: string): Promise<RecipeItem[]> {
+const TRANSLATABLE_FIELDS: (keyof RecipeItem)[] = ['name', 'description', 'doughName', 'ingredients', 'instructions'];
+
+export async function fetchRecipes(search?: string, style?: string, locale?: Locale): Promise<RecipeItem[]> {
   try {
     const url = new URL(`${API_BASE_URL}/recipes`);
     if (search) url.searchParams.set('search', search);
     if (style && style !== 'all') url.searchParams.set('style', style);
+    const lang = apiLocale(locale);
+    if (lang) url.searchParams.set('locale', lang);
 
     const res = await fetch(url.toString(), { next: { revalidate: 0 } });
     if (res.ok) {
@@ -23,7 +29,8 @@ export async function fetchRecipes(search?: string, style?: string): Promise<Rec
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('bakeitbaby_custom_recipes');
     const custom: RecipeItem[] = stored ? JSON.parse(stored) : [];
-    let list = [...PRESET_RECIPES, ...custom];
+    const presets = PRESET_RECIPES.map(r => localizePreset(r, TRANSLATABLE_FIELDS, locale));
+    let list = [...presets, ...custom];
 
     if (search && search.trim() !== '') {
       const s = search.toLowerCase().trim();
@@ -41,13 +48,15 @@ export async function fetchRecipes(search?: string, style?: string): Promise<Rec
     return list;
   }
 
-  return PRESET_RECIPES;
+  return PRESET_RECIPES.map(r => localizePreset(r, TRANSLATABLE_FIELDS, locale));
 }
 
-export async function saveRecipe(recipe: Partial<RecipeItem>): Promise<RecipeItem> {
+export async function saveRecipe(recipe: Partial<RecipeItem>, locale?: Locale): Promise<RecipeItem> {
   try {
     const isEdit = typeof recipe.id === 'number';
-    const url = isEdit ? `${API_BASE_URL}/recipes/${recipe.id}` : `${API_BASE_URL}/recipes`;
+    const lang = apiLocale(locale);
+    const query = lang ? `?locale=${lang}` : '';
+    const url = isEdit ? `${API_BASE_URL}/recipes/${recipe.id}${query}` : `${API_BASE_URL}/recipes${query}`;
     const method = isEdit ? 'PUT' : 'POST';
 
     const res = await fetch(url, {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Dough;
+use App\Http\RequestLocale;
 use App\Repository\DoughRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,26 +30,36 @@ final class DoughController extends AbstractController
         $search = $request->query->getString('search', '');
         $style = $request->query->getString('style', 'all');
 
+        $locale = RequestLocale::fromRequest($request);
+
+        // Localized content isn't searchable in SQL, so translated searches are filtered below.
         $doughs = $this->doughRepository->searchAndFilter(
-            search: $search !== '' ? $search : null,
+            search: $search !== '' && $locale === null ? $search : null,
             style: $style !== '' ? $style : null
         );
 
+        if ($search !== '' && $locale !== null) {
+            $doughs = array_values(array_filter(
+                $doughs,
+                static fn (Dough $d) => $d->matchesSearch($search, $locale, ['name', 'description'])
+            ));
+        }
+
         return new JsonResponse([
-            'data' => array_map(static fn (Dough $d) => $d->toArray(), $doughs),
+            'data' => array_map(static fn (Dough $d) => $d->toArray($locale), $doughs),
             'total' => count($doughs),
         ]);
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id): JsonResponse
+    public function show(int $id, Request $request): JsonResponse
     {
         $dough = $this->doughRepository->find($id);
         if (!$dough instanceof Dough) {
             return new JsonResponse(['error' => 'Dough formulation not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return new JsonResponse(['data' => $dough->toArray()]);
+        return new JsonResponse(['data' => $dough->toArray(RequestLocale::fromRequest($request))]);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
@@ -112,7 +123,7 @@ final class DoughController extends AbstractController
         $this->entityManager->persist($dough);
         $this->entityManager->flush();
 
-        return new JsonResponse(['data' => $dough->toArray()], Response::HTTP_CREATED);
+        return new JsonResponse(['data' => $dough->toArray(RequestLocale::fromRequest($request))], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
@@ -125,6 +136,14 @@ final class DoughController extends AbstractController
 
         /** @var array<string, mixed> $payload */
         $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        // Editing in a translated locale updates that translation rather than the base content.
+        $locale = RequestLocale::fromRequest($request);
+        if ($locale !== null && $dough->hasTranslation($locale)) {
+            $translatable = array_flip(Dough::translatableFields());
+            $dough->mergeTranslation($locale, array_intersect_key($payload, $translatable));
+            $payload = array_diff_key($payload, $translatable);
+        }
 
         if (isset($payload['name'])) $dough->setName((string) $payload['name']);
         if (isset($payload['description'])) $dough->setDescription((string) $payload['description']);
@@ -158,7 +177,7 @@ final class DoughController extends AbstractController
 
         $this->entityManager->flush();
 
-        return new JsonResponse(['data' => $dough->toArray()]);
+        return new JsonResponse(['data' => $dough->toArray($locale)]);
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
