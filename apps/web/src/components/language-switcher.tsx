@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useAppLocale, type Locale } from '@/context/locale-context';
+import { useAppLocale } from '@/context/locale-context';
 import { Languages } from 'lucide-react';
 
 export function LanguageSwitcher() {

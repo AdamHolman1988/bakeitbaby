@@ -22,14 +22,12 @@ const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('cs');
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('NEXT_LOCALE') as Locale;
     if (saved === 'cs' || saved === 'en') {
       setLocaleState(saved);
     }
-    setMounted(true);
   }, []);
 
   const setLocale = (newLocale: Locale) => {
@@ -43,10 +41,10 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const t = useCallback(
     (path: string, params?: Record<string, string | number>): string => {
       const parts = path.split('.');
-      let current: any = messages;
+      let current: unknown = messages;
       for (const part of parts) {
         if (current && typeof current === 'object' && part in current) {
-          current = current[part];
+          current = (current as Record<string, unknown>)[part];
         } else {
           return path;
         }

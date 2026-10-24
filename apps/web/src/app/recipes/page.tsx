@@ -6,7 +6,7 @@ import { RecipeItem, RecipeIngredient, PRESET_RECIPES } from '@/types/recipe';
 import { fetchRecipes, saveRecipe, deleteRecipe } from '@/services/recipe-service';
 import { fetchDoughs } from '@/services/dough-service';
 import { DoughItem } from '@/types/dough';
-import { Search, Plus, Edit2, Trash2, BookOpen, Clock, Flame, ChevronDown, ChevronUp, Utensils, ChefHat, Sparkles } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, BookOpen, Flame, ChevronDown, ChevronUp, Utensils, ChefHat } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RecipesPage() {

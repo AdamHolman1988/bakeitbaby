@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useAppLocale } from '@/context/locale-context';
 import { DoughItem, PRESET_DOUGHS } from '@/types/dough';
 import { fetchDoughs, saveDough, deleteDough } from '@/services/dough-service';
-import { Search, Plus, Edit2, Trash2, Calculator, ChevronDown, ChevronUp, ChefHat, Clock, Droplets, Layers } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Calculator, ChevronDown, ChevronUp, ChefHat } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DoughsPage() {
@@ -21,7 +21,7 @@ export default function DoughsPage() {
   const [formName, setFormName] = React.useState('');
   const [formDescription, setFormDescription] = React.useState('');
   const [formStyle, setFormStyle] = React.useState('neapolitan');
-  const [formMethod, setFormMethod] = React.useState<'direct' | 'biga' | 'poolish'>('direct');
+  const [formMethod, setFormMethod] = React.useState<DoughItem['prefermentType']>('direct');
   const [formPrefPct, setFormPrefPct] = React.useState(0);
   const [formBalls, setFormBalls] = React.useState(4);
   const [formWeight, setFormWeight] = React.useState(260);
@@ -59,7 +59,7 @@ export default function DoughsPage() {
         setFormSugar(Number(p.get('sugar')) || 0);
         setFormRt(Number(p.get('rt')) || 8);
         setFormCt(Number(p.get('ct')) || 16);
-        setFormMethod((p.get('method') as any) || 'direct');
+        setFormMethod((p.get('method') as DoughItem['prefermentType'] | null) || 'direct');
         setFormPrefPct(Number(p.get('pref')) || 0);
         setFormStyle(p.get('style') || 'neapolitan');
         setFormFlourName('Doporučená mouka');
@@ -407,7 +407,7 @@ export default function DoughsPage() {
                   </label>
                   <select
                     value={formMethod}
-                    onChange={e => setFormMethod(e.target.value as any)}
+                    onChange={e => setFormMethod(e.target.value as DoughItem['prefermentType'])}
                     className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] cursor-pointer"
                   >
                     <option value="direct">Přímé těsto</option>
